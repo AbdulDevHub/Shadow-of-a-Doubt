@@ -1,25 +1,25 @@
 m_ProjectFiles:
   m_ManifestFileStatus:
-    m_FilePath: C:/Users/kokok/Downloads/Unity Game/Tutorial Project/Packages/manifest.json
+    m_FilePath: C:/Users/kokok/Shadow-of-a-Doubt/Packages/manifest.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638938254094368941
+      ticks: 638947670515467280
     m_Hash: 1442344571
   m_LockFileStatus:
-    m_FilePath: C:/Users/kokok/Downloads/Unity Game/Tutorial Project/Packages/packages-lock.json
+    m_FilePath: C:/Users/kokok/Shadow-of-a-Doubt/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638938254094447204
+      ticks: 638947670587762721
     m_Hash: 2829410210
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
   m_LocalFileStatus: []
-m_ProjectPath: C:/Users/kokok/Downloads/Unity Game/Tutorial Project/Packages
+m_ProjectPath: C:/Users/kokok/Shadow-of-a-Doubt/Packages
 m_EditorVersion: 6000.2.5f1 (43d04cd1df69)
 m_ResolvedPackages:
 - packageId: com.unity.ai.navigation@2.0.9
@@ -27,7 +27,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.0.9
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.ai.navigation@5218e4bf7edc
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.ai.navigation@5218e4bf7edc
   assetPath: Packages/com.unity.ai.navigation
   name: com.unity.ai.navigation
   displayName: AI Navigation
@@ -160,7 +160,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.8.24
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.burst@f7a407abf4d5
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.burst@f7a407abf4d5
   assetPath: Packages/com.unity.burst
   name: com.unity.burst
   displayName: Burst
@@ -395,7 +395,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.10.4
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.cinemachine@915237edaa40
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.cinemachine@915237edaa40
   assetPath: Packages/com.unity.cinemachine
   name: com.unity.cinemachine
   displayName: Cinemachine
@@ -606,7 +606,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.9.3
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.collab-proxy@ab839cc7d2ad
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.collab-proxy@ab839cc7d2ad
   assetPath: Packages/com.unity.collab-proxy
   name: com.unity.collab-proxy
   displayName: Unity Version Control
@@ -782,7 +782,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.5.7
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.collections@d49facba0036
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.collections@d49facba0036
   assetPath: Packages/com.unity.collections
   name: com.unity.collections
   displayName: Collections
@@ -972,7 +972,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.0.5
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.ext.nunit@031a54704bff
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.ext.nunit@031a54704bff
   assetPath: Packages/com.unity.ext.nunit
   name: com.unity.ext.nunit
   displayName: Custom NUnit
@@ -1052,7 +1052,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 3.0.38
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.ide.rider@1f60b3138684
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.ide.rider@1f60b3138684
   assetPath: Packages/com.unity.ide.rider
   name: com.unity.ide.rider
   displayName: JetBrains Rider Editor
@@ -1184,7 +1184,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.0.23
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.ide.visualstudio@198cdf337d13
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.ide.visualstudio@198cdf337d13
   assetPath: Packages/com.unity.ide.visualstudio
   name: com.unity.ide.visualstudio
   displayName: Visual Studio Editor
@@ -1300,7 +1300,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.14.2
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.inputsystem@be6c4fd0abf5
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.inputsystem@be6c4fd0abf5
   assetPath: Packages/com.unity.inputsystem
   name: com.unity.inputsystem
   displayName: Input System
@@ -1458,7 +1458,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.3.2
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.mathematics@8017b507cc74
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.mathematics@8017b507cc74
   assetPath: Packages/com.unity.mathematics
   name: com.unity.mathematics
   displayName: Mathematics
@@ -1557,7 +1557,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.0.0
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.multiplayer.center@f3fb577b3546
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.multiplayer.center@f3fb577b3546
   assetPath: Packages/com.unity.multiplayer.center
   name: com.unity.multiplayer.center
   displayName: Multiplayer Center
@@ -1653,7 +1653,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.11.5
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.nuget.mono-cecil@d78732e851eb
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.nuget.mono-cecil@d78732e851eb
   assetPath: Packages/com.unity.nuget.mono-cecil
   name: com.unity.nuget.mono-cecil
   displayName: Mono Cecil
@@ -1746,7 +1746,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 0.22.0-preview
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.package-validation-suite@536239bd7458
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.package-validation-suite@536239bd7458
   assetPath: Packages/com.unity.package-validation-suite
   name: com.unity.package-validation-suite
   displayName: Package Validation Suite
@@ -2082,7 +2082,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 6.0.7
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.probuilder@9b6693f09f97
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.probuilder@9b6693f09f97
   assetPath: Packages/com.unity.probuilder
   name: com.unity.probuilder
   displayName: ProBuilder
@@ -2292,7 +2292,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 17.2.0
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.render-pipelines.core@f2c863af5658
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.render-pipelines.core@f2c863af5658
   assetPath: Packages/com.unity.render-pipelines.core
   name: com.unity.render-pipelines.core
   displayName: Scriptable Render Pipeline Core
@@ -2418,7 +2418,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 17.2.0
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.render-pipelines.universal@0d0962426023
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.render-pipelines.universal@0d0962426023
   assetPath: Packages/com.unity.render-pipelines.universal
   name: com.unity.render-pipelines.universal
   displayName: Universal Render Pipeline
@@ -2545,7 +2545,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 17.0.3
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d
   assetPath: Packages/com.unity.render-pipelines.universal-config
   name: com.unity.render-pipelines.universal-config
   displayName: Universal Render Pipeline Config
@@ -2653,7 +2653,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.0.1
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.rendering.light-transport@2c9279f90d7c
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.rendering.light-transport@2c9279f90d7c
   assetPath: Packages/com.unity.rendering.light-transport
   name: com.unity.rendering.light-transport
   displayName: Unity Light Transport Library
@@ -2759,7 +2759,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 17.2.0
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.shadergraph@940512a5d7e1
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.shadergraph@940512a5d7e1
   assetPath: Packages/com.unity.shadergraph
   name: com.unity.shadergraph
   displayName: Shader Graph
@@ -2875,7 +2875,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.5.1
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.test-framework@038a2b0cacd2
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.test-framework@038a2b0cacd2
   assetPath: Packages/com.unity.test-framework
   name: com.unity.test-framework
   displayName: Test Framework
@@ -2965,7 +2965,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 3.1.0
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.test-framework.performance@92d1d09a72ed
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.test-framework.performance@92d1d09a72ed
   assetPath: Packages/com.unity.test-framework.performance
   name: com.unity.test-framework.performance
   displayName: Performance testing API
@@ -3112,7 +3112,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.8.9
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.timeline@6b9e48457ddb
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.timeline@6b9e48457ddb
   assetPath: Packages/com.unity.timeline
   name: com.unity.timeline
   displayName: Timeline
@@ -3310,7 +3310,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 2.0.0
   source: 2
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.ugui@38c58105e446
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.ugui@38c58105e446
   assetPath: Packages/com.unity.ugui
   name: com.unity.ugui
   displayName: Unity UI
@@ -3406,7 +3406,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 1.9.7
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.visualscripting@6279e2b7c485
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.visualscripting@6279e2b7c485
   assetPath: Packages/com.unity.visualscripting
   name: com.unity.visualscripting
   displayName: Visual Scripting
@@ -6304,7 +6304,7 @@ m_ResolvedPackages:
   isDirectDependency: 1
   version: 4.9.3
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.searcher@1e17ce91558d
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.searcher@1e17ce91558d
   assetPath: Packages/com.unity.searcher
   name: com.unity.searcher
   displayName: Searcher
@@ -6401,7 +6401,7 @@ m_ResolvedPackages:
   isDirectDependency: 0
   version: 2.1.0
   source: 1
-  resolvedPath: C:\Users\kokok\Downloads\Unity Game\Tutorial Project\Library\PackageCache\com.unity.settings-manager@41738c275190
+  resolvedPath: C:\Users\kokok\Shadow-of-a-Doubt\Library\PackageCache\com.unity.settings-manager@41738c275190
   assetPath: Packages/com.unity.settings-manager
   name: com.unity.settings-manager
   displayName: Settings Manager
