@@ -12,8 +12,17 @@ EditorBuildSettings:
     path: Assets/Scenes/Main Menu.unity
     guid: e87c4e6724e3a874599e8bd3595a598e
   - enabled: 1
-    path: Assets/Scenes/House.unity
+    path: Assets/Scenes/Tutorial.unity
     guid: 64579b3b323a23247a675d24ef58694c
+  - enabled: 1
+    path: Assets/Scenes/Level 1.unity
+    guid: 644cbb11c629e294ca13dc73e1d4d9ca
+  - enabled: 1
+    path: Assets/Scenes/Level 2.unity
+    guid: 3866160b7bd0c7648b751fea48ac6732
+  - enabled: 1
+    path: Assets/Scenes/Boss Battle.unity
+    guid: 32c8f833b81025046bb23daabead6129
   - enabled: 1
     path: Assets/Scenes/Ending.unity
     guid: 253f3fb88b5ccf44b98c5f3273e2564f

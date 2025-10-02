@@ -5,7 +5,7 @@ public class MainMenuController : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("House"); // Replace with your first scene name
+        SceneManager.LoadScene("Tutorial"); // Replace with your first scene name
     }
 
     public void QuitGame()

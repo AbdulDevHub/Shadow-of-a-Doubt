@@ -463,6 +463,7 @@
 "Assets/Scripts/DialogueSequence.cs"
 "Assets/Scripts/EndPanelController.cs"
 "Assets/Scripts/GhostHealth.cs"
+"Assets/Scripts/GhostKillManager.cs"
 "Assets/Scripts/GhostMovement.cs"
 "Assets/Scripts/GhostSpawner.cs"
 "Assets/Scripts/MainMenuController.cs"

@@ -1,42 +1,79 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class GhostSpawner : MonoBehaviour
+public class GhostSpawnerMaster : MonoBehaviour
 {
-    public GameObject ghostPrefab;
-    public Transform playerTransform;
-
-    public int ghostCount = 5;
-    public float minSpawnInterval = 1f;
-    public float maxSpawnInterval = 3f;
-
-    public float spawnRadius = 2f; // Offset radius so they don't overlap
-
-    void Start()
+    [System.Serializable]
+    public class GhostEntry
     {
-        StartCoroutine(SpawnGhosts());
+        public GameObject ghostPrefab;
+        public int amount;
     }
 
-    IEnumerator SpawnGhosts()
+    [System.Serializable]
+    public class Wave
     {
-        for (int i = 0; i < ghostCount; i++)
+        public List<GhostEntry> ghostsInWave = new List<GhostEntry>();
+        public float minSpawnInterval = 1f;
+        public float maxSpawnInterval = 3f;
+    }
+
+    public List<Wave> waves = new List<Wave>();
+    public Transform playerTransform;
+
+    private List<Transform> spawnPoints = new List<Transform>();
+
+    void Awake()
+    {
+        // Collect all child transforms that are spawners
+        foreach (Transform child in transform)
         {
-            SpawnOneGhost();
-            float delay = Random.Range(minSpawnInterval, maxSpawnInterval);
-            yield return new WaitForSeconds(delay);
+            spawnPoints.Add(child);
         }
     }
 
-    void SpawnOneGhost()
+    void Start()
     {
-        // Random offset so they don't all spawn at same position
-        Vector2 offset2D = Random.insideUnitCircle * spawnRadius;
-        Vector3 spawnPos = transform.position + new Vector3(offset2D.x, 0f, offset2D.y);
+        StartCoroutine(HandleWaves());
+    }
 
-        GameObject ghost = Instantiate(ghostPrefab, spawnPos, Quaternion.identity);
+    IEnumerator HandleWaves()
+    {
+        foreach (var wave in waves)
+        {
+            yield return StartCoroutine(SpawnWave(wave));
+        }
+    }
+
+    IEnumerator SpawnWave(Wave wave)
+    {
+        foreach (var ghostEntry in wave.ghostsInWave)
+        {
+            for (int i = 0; i < ghostEntry.amount; i++)
+            {
+                SpawnGhost(ghostEntry.ghostPrefab);
+
+                float delay = Random.Range(wave.minSpawnInterval, wave.maxSpawnInterval);
+                yield return new WaitForSeconds(delay);
+            }
+        }
+    }
+
+    void SpawnGhost(GameObject ghostPrefab)
+    {
+        if (spawnPoints.Count == 0) return;
+
+        Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
+
+        GameObject ghost = Instantiate(
+            ghostPrefab,
+            randomPoint.position,
+            Quaternion.identity
+        );
 
         GhostMovement gm = ghost.GetComponent<GhostMovement>();
-        if (gm != null)
+        if (gm != null && playerTransform != null)
         {
             gm.SetTarget(playerTransform);
         }

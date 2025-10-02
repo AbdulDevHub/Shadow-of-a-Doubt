@@ -1,9 +1,8 @@
 [Licensing::Module] Trying to connect to existing licensing client channel...
 Built from '6000.2/staging' branch; Version is '6000.2.5f1 (43d04cd1df69) revision 4444236'; Using compiler version '194234433'; Build Type 'Release'
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-kokok" at "2025-09-30T22:18:53.393195Z"
 OS: 'Windows 11  (10.0.26100) 64bit Core' Language: 'en' Physical Memory: 16107 MB
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
-Date: 2025-09-30T22:18:53Z
+Date: 2025-10-02T15:46:58Z
 
 COMMAND LINE ARGUMENTS:
 C:\Program Files\Unity\Hub\Editor\6000.2.5f1\Editor\Unity.exe
@@ -17,7 +16,7 @@ C:/Users/kokok/Shadow-of-a-Doubt
 -logFile
 Logs/AssetImportWorker1.log
 -srvPort
-60800
+61304
 -licensingIpc
 LicenseClient-kokok
 -job-worker-count
@@ -29,6 +28,7 @@ LicenseClient-kokok
 -name
 AssetImport
 Successfully changed project path to: C:/Users/kokok/Shadow-of-a-Doubt
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-kokok" at "2025-10-02T15:46:58.6540898Z"
 C:/Users/kokok/Shadow-of-a-Doubt
 [UnityMemory] Configuration Parameters - Can be set up in boot.config
     "memorysetup-allocator-temp-initial-block-size-main=262144"
@@ -65,27 +65,27 @@ C:/Users/kokok/Shadow-of-a-Doubt
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Player connection [13932]  Target information:
+Player connection [3936]  Target information:
 
-Player connection [13932]  * "[IP] 192.168.2.13 [Port] 0 [Flags] 2 [Guid] 3163921606 [EditorId] 3163921606 [Version] 1048832 [Id] WindowsEditor(7,Abyss-Blue) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [3936]  * "[IP] 100.112.82.95 [Port] 0 [Flags] 2 [Guid] 1870423234 [EditorId] 1870423234 [Version] 1048832 [Id] WindowsEditor(7,Abyss-Blue) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [13932] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [13932] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [3936] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [3936] Host joined alternative multi-casting on [225.0.0.222:34997]...
 JobSystem: Creating JobQueue using job-worker-count value 5
 Input System module state changed to: Initialized.
 [Physics::Module] Initialized fallback backend.
 [Physics::Module] Id: 0xdecafbad
-[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 6248, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 19632, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
 [Licensing::Module] LicensingClient has failed validation; ignoring
 [Licensing::Client] Handshaking with LicensingClient:
   Version:                 1.17.3+a4e98f1
-  Session Id:              8425fef8a7134104ae8b0fc65bbd1559
-  Correlation Id:          a13c6be7ececedc278c490d9cdad3498
-  External correlation Id: 5655076229383504758
+  Session Id:              73b9c2f8ab4e481ab868aea908d2d509
+  Correlation Id:          15fd59e00063d2483af638e4265b80f8
+  External correlation Id: 6489645238230631749
   Machine Id:              Illo5TnkErW9MO7djhp7M+jgac0=
-[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-kokok" (connect: 0.00s, validation: 0.00s, handshake: 0.14s)
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-kokok-notifications" at "2025-09-30T22:18:53.5325175Z"
-[Licensing::Module] Licensing Background thread has ended after 0.14s
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-kokok" (connect: 0.13s, validation: 0.04s, handshake: 0.09s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-kokok-notifications" at "2025-10-02T15:46:58.9016973Z"
+[Licensing::Module] Licensing Background thread has ended after 0.26s
 Library Redirect Path: Library/
 [Physics::Module] Selected backend.
 [Physics::Module] Name: PhysX
@@ -93,7 +93,7 @@ Library Redirect Path: Library/
 [Physics::Module] SDK Version: 4.1.2
 [Physics::Module] Integration Version: 1.0.0
 [Physics::Module] Threading Mode: Multi-Threaded
-Refreshing native plugins compatible for Editor in 5.59 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 4.44 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 6000.2.5f1 (43d04cd1df69)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/Resources/UnitySubsystems
@@ -113,43 +113,43 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56960
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56816
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.007760 seconds.
-- Loaded All Assemblies, in  1.212 seconds
+Registered in 0.004234 seconds.
+- Loaded All Assemblies, in  1.081 seconds
 Native extension for WindowsStandalone target not found
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  1.016 seconds
-Domain Reload Profiling: 2220ms
-	BeginReloadAssembly (423ms)
+- Finished resetting the current domain, in  1.051 seconds
+Domain Reload Profiling: 2127ms
+	BeginReloadAssembly (375ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (0ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
-		CreateAndSetChildDomain (3ms)
-	RebuildCommonClasses (123ms)
-	RebuildNativeTypeToScriptingClass (22ms)
-	initialDomainReloadingComplete (141ms)
-	LoadAllAssembliesAndSetupDomain (493ms)
-		LoadAssemblies (417ms)
+		CreateAndSetChildDomain (2ms)
+	RebuildCommonClasses (85ms)
+	RebuildNativeTypeToScriptingClass (28ms)
+	initialDomainReloadingComplete (128ms)
+	LoadAllAssembliesAndSetupDomain (460ms)
+		LoadAssemblies (371ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (476ms)
-			TypeCache.Refresh (472ms)
-				TypeCache.ScanAssembly (435ms)
+		AnalyzeDomain (450ms)
+			TypeCache.Refresh (446ms)
+				TypeCache.ScanAssembly (415ms)
 			BuildScriptInfoCaches (0ms)
 			ResolveRequiredComponents (1ms)
-	FinalizeReload (1018ms)
+	FinalizeReload (1052ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (870ms)
+		SetupLoadedEditorAssemblies (927ms)
 			LogAssemblyErrors (0ms)
-			InitializePlatformSupportModulesInManaged (156ms)
-			SetLoadedEditorAssemblies (10ms)
-			BeforeProcessingInitializeOnLoad (199ms)
-			ProcessInitializeOnLoadAttributes (356ms)
-			ProcessInitializeOnLoadMethodAttributes (149ms)
+			InitializePlatformSupportModulesInManaged (134ms)
+			SetLoadedEditorAssemblies (8ms)
+			BeforeProcessingInitializeOnLoad (225ms)
+			ProcessInitializeOnLoadAttributes (400ms)
+			ProcessInitializeOnLoadMethodAttributes (160ms)
 			AfterProcessingInitializeOnLoad (0ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
@@ -164,8 +164,8 @@ Begin MonoManager ReloadAssembly
   Product: Unity Personal
   Type: Assigned
   Expiration: Unlimited
-Duplicate assembly 'log4net.dll' with different versions detected, using 'Packages/com.unity.package-validation-suite/Lib/Editor/log4net.dll, AssemblyName=log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a' and ignoring 'Packages/com.unity.collab-proxy/Lib/Editor/log4netPlastic.dll, AssemblyName=log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a'.- Loaded All Assemblies, in  2.170 seconds
-Refreshing native plugins compatible for Editor in 4.57 ms, found 3 plugins.
+Duplicate assembly 'log4net.dll' with different versions detected, using 'Packages/com.unity.package-validation-suite/Lib/Editor/log4net.dll, AssemblyName=log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a' and ignoring 'Packages/com.unity.collab-proxy/Lib/Editor/log4netPlastic.dll, AssemblyName=log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a'.- Loaded All Assemblies, in  2.277 seconds
+Refreshing native plugins compatible for Editor in 2.33 ms, found 3 plugins.
 Native extension for WindowsStandalone target not found
 Package Manager log level set to [2]
 [Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
@@ -175,92 +175,89 @@ Package Manager log level set to [2]
 [MODES] ModeService[none].LoadModes
 [MODES] Loading mode Default (0) for mode-current-id-Shadow-of-a-Doubt
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  1.891 seconds
-Domain Reload Profiling: 4043ms
-	BeginReloadAssembly (510ms)
+- Finished resetting the current domain, in  1.974 seconds
+Domain Reload Profiling: 4237ms
+	BeginReloadAssembly (484ms)
 		ExecutionOrderSort (0ms)
-		DisableScriptedObjects (23ms)
+		DisableScriptedObjects (19ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
-		CreateAndSetChildDomain (76ms)
-	RebuildCommonClasses (111ms)
-	RebuildNativeTypeToScriptingClass (38ms)
-	initialDomainReloadingComplete (141ms)
-	LoadAllAssembliesAndSetupDomain (1351ms)
-		LoadAssemblies (1006ms)
+		CreateAndSetChildDomain (59ms)
+	RebuildCommonClasses (106ms)
+	RebuildNativeTypeToScriptingClass (31ms)
+	initialDomainReloadingComplete (109ms)
+	LoadAllAssembliesAndSetupDomain (1532ms)
+		LoadAssemblies (974ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (630ms)
-			TypeCache.Refresh (493ms)
-				TypeCache.ScanAssembly (468ms)
-			BuildScriptInfoCaches (107ms)
-			ResolveRequiredComponents (21ms)
-	FinalizeReload (1892ms)
+		AnalyzeDomain (842ms)
+			TypeCache.Refresh (628ms)
+				TypeCache.ScanAssembly (594ms)
+			BuildScriptInfoCaches (169ms)
+			ResolveRequiredComponents (35ms)
+	FinalizeReload (1975ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (1448ms)
+		SetupLoadedEditorAssemblies (1521ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (5ms)
 			SetLoadedEditorAssemblies (11ms)
-			BeforeProcessingInitializeOnLoad (369ms)
-			ProcessInitializeOnLoadAttributes (864ms)
-			ProcessInitializeOnLoadMethodAttributes (193ms)
-			AfterProcessingInitializeOnLoad (6ms)
-			EditorAssembliesLoaded (0ms)
+			BeforeProcessingInitializeOnLoad (315ms)
+			ProcessInitializeOnLoadAttributes (892ms)
+			ProcessInitializeOnLoadMethodAttributes (290ms)
+			AfterProcessingInitializeOnLoad (9ms)
+			EditorAssembliesLoaded (1ms)
 		ExecutionOrderSort2 (0ms)
-		AwakeInstancesAfterBackupRestoration (11ms)
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
-Refreshing native plugins compatible for Editor in 1.55 ms, found 3 plugins.
+		AwakeInstancesAfterBackupRestoration (15ms)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.06 seconds
+Refreshing native plugins compatible for Editor in 2.42 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 16 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 6767 unused Assets / (4.5 MB). Loaded Objects now: 7508.
-Memory consumption went from 155.4 MB to 150.8 MB.
-Total: 17.716200 ms (FindLiveObjects: 0.754900 ms CreateObjectMapping: 0.526700 ms MarkObjects: 12.314900 ms  DeleteObjects: 4.117000 ms)
+Unloading 6915 unused Assets / (4.5 MB). Loaded Objects now: 7658.
+Memory consumption went from 158.5 MB to 154.0 MB.
+Total: 10.989700 ms (FindLiveObjects: 0.945800 ms CreateObjectMapping: 0.779000 ms MarkObjects: 6.598600 ms  DeleteObjects: 2.663900 ms)
 
 ========================================================================
 Received Import Request.
-  Time since last request: 465447.714247 seconds.
-  path: Assets/Models/Monsters/Prefabs/Slime/Slime_Yellow.prefab
-  artifactKey: Guid(529296adea5f8bb4581e098f98e62549) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Slime/Slime_Yellow.prefab using Guid(529296adea5f8bb4581e098f98e62549) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ae7ccb0bb4974866ccdef7f4ed4b8b80') in 4.9275475 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 43
+  Time since last request: 614736.195663 seconds.
+  path: Assets/Models/Monsters/Images/Ghost/Ghost_Violet.png
+  artifactKey: Guid(7fa4018221bb31a4b983173f69c53768) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Monsters/Images/Ghost/Ghost_Violet.png using Guid(7fa4018221bb31a4b983173f69c53768) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '68c0d57895bdce82fc8f04c7a66aa962') in 0.2186932 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000061 seconds.
-  path: Assets/Models/Monsters/Prefabs/Slime/Slime_Red.prefab
-  artifactKey: Guid(1ce05a9bb8cf8c34890ad308705a8ca4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Slime/Slime_Red.prefab using Guid(1ce05a9bb8cf8c34890ad308705a8ca4) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ace4b9ae146167acc38434151700346e') in 0.0620651 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 43
+  Time since last request: 0.000062 seconds.
+  path: Assets/Models/Monsters/Materials/Ghost/Ghost_Violet.mat
+  artifactKey: Guid(da7164be9b7e1fb45a33679cb7f62648) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Monsters/Materials/Ghost/Ghost_Violet.mat using Guid(da7164be9b7e1fb45a33679cb7f62648) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '921f982ab297a4ce1720e6262e5d23ab') in 1.4472484 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
 ========================================================================
 Received Import Request.
-  Time since last request: 17.207026 seconds.
-  path: Assets/Models/Monsters/Prefabs/Rabbit/Rabbit_Green.prefab
-  artifactKey: Guid(0f21afde7a41dfb4e930ca290ca46dee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Rabbit/Rabbit_Green.prefab using Guid(0f21afde7a41dfb4e930ca290ca46dee) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '760360eee68d88ed4ba23083f682b796') in 0.0546931 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 57
+  Time since last request: 0.000095 seconds.
+  path: Assets/Models/Monsters/Materials/Ghost/Ghost_Brown.mat
+  artifactKey: Guid(e7730fe5ddfc2304e9ef19c1777dff95) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Monsters/Materials/Ghost/Ghost_Brown.mat using Guid(e7730fe5ddfc2304e9ef19c1777dff95) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'fea0e54d17d282cd11f080b3d2b3996d') in 0.1138292 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000046 seconds.
-  path: Assets/Models/Monsters/Prefabs/Rabbit/Rabbit_Red.prefab
-  artifactKey: Guid(c334a7c41936e764391ae93ab0e1981d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Rabbit/Rabbit_Red.prefab using Guid(c334a7c41936e764391ae93ab0e1981d) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '19cb5ff83f8a009918a7cc78c8ef62c2') in 0.0514604 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 57
+  Time since last request: 0.000076 seconds.
+  path: Assets/Models/Monsters/Materials/Ghost/Ghost_Green.mat
+  artifactKey: Guid(d2b7dde03ec3f2944b36f585daf401ed) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Monsters/Materials/Ghost/Ghost_Green.mat using Guid(d2b7dde03ec3f2944b36f585daf401ed) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ab0f82bd65f35b5844f6a55ffa8c7d48') in 0.1390196 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
 ========================================================================
 Received Import Request.
-  Time since last request: 1.612975 seconds.
-  path: Assets/Models/Monsters/Prefabs/Bat/Bat_Red.prefab
-  artifactKey: Guid(67f0474ce7d8d344fa04ba561d36d761) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Bat/Bat_Red.prefab using Guid(67f0474ce7d8d344fa04ba561d36d761) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '0fe23f8b01a6662489b7b494ae7e2171') in 0.0683559 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 97
+  Time since last request: 0.000066 seconds.
+  path: Assets/Models/Monsters/Materials/Ghost/Ghost_White.mat
+  artifactKey: Guid(e45b40dde5630f3488fd950d7ca4f260) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Monsters/Materials/Ghost/Ghost_White.mat using Guid(e45b40dde5630f3488fd950d7ca4f260) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '863c7a9f2597a63592402793b4b5926a') in 0.0899472 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000086 seconds.
-  path: Assets/Models/Monsters/Prefabs/Bat/Bat_Violet.prefab
-  artifactKey: Guid(a300b93764f24c94b9ddb3445d906548) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Models/Monsters/Prefabs/Bat/Bat_Violet.prefab using Guid(a300b93764f24c94b9ddb3445d906548) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7cafca7dbd4495f00e83b2d023afa756') in 0.0600594 seconds
-Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 97
-
+Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
+AssetImportWorker is now disconnected from the server
+Process exiting
+Exiting without the bug reporter. Application will terminate with return code 0

@@ -5,8 +5,8 @@ public class GhostHealth : MonoBehaviour
 {
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 3f;   
-    [SerializeField] private Slider healthBar;   // Use Slider instead of Image
 
+    private Slider healthBar;   // no need to assign manually
     private float currentHealth;
 
     [Header("FX")]
@@ -18,10 +18,17 @@ public class GhostHealth : MonoBehaviour
         maxHealth = Random.Range(2, 4);
         currentHealth = maxHealth;
 
+        // Auto-find a Slider in this GameObject or children
+        healthBar = GetComponentInChildren<Slider>();
+
         if (healthBar != null)
         {
             healthBar.maxValue = 1f;
             healthBar.value = 1f;
+        }
+        else
+        {
+            Debug.LogWarning($"{name} has GhostHealth but no Slider found in children!");
         }
     }
 
@@ -58,6 +65,12 @@ public class GhostHealth : MonoBehaviour
 
             spawnedFx.transform.localScale =
                 Vector3.one * defaultSmokeEffect.transform.localScale.x;
+        }
+
+        // Register this ghost's death
+        if (GhostKillManager.Instance != null)
+        {
+            GhostKillManager.Instance.RegisterKill();
         }
 
         Destroy(gameObject);
