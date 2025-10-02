@@ -229,6 +229,16 @@
       "source": "registry",
       "testable": false
     },
+    "com.unity.toonshader@0.10.0-preview": {
+      "name": "com.unity.toonshader",
+      "displayName": "Unity Toon Shader",
+      "resolvedPath": "C:\\Users\\kokok\\Shadow-of-a-Doubt\\Library\\PackageCache\\com.unity.toonshader@1c270c29449c",
+      "fingerprint": "1c270c29449cca38d162602beefe119583c7533a",
+      "editorCompatibility": "2020.3.0a1",
+      "version": "0.10.0-preview",
+      "source": "registry",
+      "testable": false
+    },
     "com.unity.ugui@2.0.0": {
       "name": "com.unity.ugui",
       "displayName": "Unity UI",
@@ -519,6 +529,16 @@
       "resolvedPath": "C:\\Program Files\\Unity\\Hub\\Editor\\6000.2.5f1\\Editor\\Data\\Resources\\PackageManager\\BuiltInPackages\\com.unity.modules.xr",
       "version": "1.0.0",
       "source": "builtin",
+      "testable": false
+    },
+    "com.unity.film-internal-utilities@0.18.4-preview": {
+      "name": "com.unity.film-internal-utilities",
+      "displayName": "Film Internal Utilities",
+      "resolvedPath": "C:\\Users\\kokok\\Shadow-of-a-Doubt\\Library\\PackageCache\\com.unity.film-internal-utilities@5f3dfda50b42",
+      "fingerprint": "5f3dfda50b42ab64faf23d539371ede13b122918",
+      "editorCompatibility": "2020.3.0a1",
+      "version": "0.18.4-preview",
+      "source": "registry",
       "testable": false
     },
     "com.unity.searcher@4.9.3": {
