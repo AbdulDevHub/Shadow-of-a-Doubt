@@ -1,34 +1,43 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
+
+[Serializable]
+public class PotionDrop
+{
+    public GameObject potionPrefab;   // prefab to drop
+    [Range(0f, 1f)] public float dropChance = 0.2f; // independent chance (0–1)
+}
 
 public class GhostHealth : MonoBehaviour
 {
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 3f;   
 
-    private Slider healthBar;   // no need to assign manually
+    private Slider healthBar;
     private float currentHealth;
 
     [Header("FX")]
     [SerializeField] private GameObject defaultSmokeEffect;
 
+    [Header("Potion Drop Settings")]
+    [Tooltip("Each potion has an independent chance. Only one max will spawn.")]
+    public PotionDrop[] potionDrops;
+
+    // event for death
+    public event Action<GhostHealth> onGhostDied;
+
     private void Awake()
     {
-        // Randomize health between 2 and 3
-        maxHealth = Random.Range(2, 4);
+        maxHealth = UnityEngine.Random.Range(2, 4);
         currentHealth = maxHealth;
 
-        // Auto-find a Slider in this GameObject or children
         healthBar = GetComponentInChildren<Slider>();
-
         if (healthBar != null)
         {
             healthBar.maxValue = 1f;
             healthBar.value = 1f;
-        }
-        else
-        {
-            Debug.LogWarning($"{name} has GhostHealth but no Slider found in children!");
         }
     }
 
@@ -55,6 +64,7 @@ public class GhostHealth : MonoBehaviour
 
     public void Die()
     {
+        // 🔹 Spawn smoke FX
         if (defaultSmokeEffect != null)
         {
             GameObject spawnedFx = Instantiate(
@@ -62,17 +72,47 @@ public class GhostHealth : MonoBehaviour
                 transform.position,
                 defaultSmokeEffect.transform.rotation
             );
-
-            spawnedFx.transform.localScale =
-                Vector3.one * defaultSmokeEffect.transform.localScale.x;
+            spawnedFx.transform.localScale = Vector3.one * defaultSmokeEffect.transform.localScale.x;
         }
 
-        // Register this ghost's death
+        // 🔹 Register kill
         if (GhostKillManager.Instance != null)
         {
             GhostKillManager.Instance.RegisterKill();
         }
 
+        // 🔹 Potion drop logic (independent, one max)
+        TryDropPotion();
+
+        // 🔹 Notify listeners
+        onGhostDied?.Invoke(this);
+
+        // 🔹 Destroy ghost
         Destroy(gameObject);
+    }
+
+    private void TryDropPotion()
+    {
+        if (potionDrops == null || potionDrops.Length == 0) return;
+
+        List<PotionDrop> winners = new List<PotionDrop>();
+
+        foreach (PotionDrop drop in potionDrops)
+        {
+            if (drop.potionPrefab == null) continue;
+
+            float roll = UnityEngine.Random.value;
+            if (roll <= drop.dropChance)
+            {
+                winners.Add(drop);
+            }
+        }
+
+        if (winners.Count > 0)
+        {
+            // pick one at random if multiple succeeded
+            PotionDrop chosen = winners[UnityEngine.Random.Range(0, winners.Count)];
+            Instantiate(chosen.potionPrefab, transform.position, Quaternion.identity);
+        }
     }
 }

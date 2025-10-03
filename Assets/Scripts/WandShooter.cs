@@ -10,11 +10,13 @@ public class WandShooter : MonoBehaviour
     public float shootingRange = 100f;
     public LayerMask hitMask = ~0;
 
-    [Header("Spells")]
-    [Tooltip("Assign up to 3 spell prefabs here (slot 0 = key 1, slot 1 = key 2, slot 2 = key 3).")]
+    [Header("Wands & Spells")]
+    [Tooltip("Assign the wand GameObjects here (visuals/models). Only one will be active at a time.")]
+    public GameObject[] wands;
+    [Tooltip("Assign spell prefabs here. Index must match the wand index.")]
     public GameObject[] spellPrefabs = new GameObject[3];
     [SerializeField] private float burstLifetime = 2f;
-    private int currentSpellIndex = 0;
+    private int currentIndex = 0;
 
     [Header("Mana")]
     public Slider manaBar;
@@ -38,12 +40,13 @@ public class WandShooter : MonoBehaviour
     {
         currentMana = maxMana;
         UpdateManaBar();
+        SelectWand(0); // Start with first wand
     }
 
     private void Update()
     {
         HandleFiringInput();
-        HandleSpellSwitching();
+        HandleWandSwitching();
         UpdateManaBar();
     }
 
@@ -65,11 +68,25 @@ public class WandShooter : MonoBehaviour
         }
     }
 
-    private void HandleSpellSwitching()
+    private void HandleWandSwitching()
     {
-        if (Keyboard.current.digit1Key.wasPressedThisFrame) currentSpellIndex = 0;
-        if (Keyboard.current.digit2Key.wasPressedThisFrame && spellPrefabs.Length > 1) currentSpellIndex = 1;
-        if (Keyboard.current.digit3Key.wasPressedThisFrame && spellPrefabs.Length > 2) currentSpellIndex = 2;
+        if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectWand(0);
+        if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectWand(1);
+        if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectWand(2);
+    }
+
+    private void SelectWand(int index)
+    {
+        if (index < 0 || index >= wands.Length) return;
+
+        currentIndex = index;
+
+        // Activate only the selected wand
+        for (int i = 0; i < wands.Length; i++)
+        {
+            if (wands[i] != null)
+                wands[i].SetActive(i == index);
+        }
     }
 
     private IEnumerator FireRoutine()
@@ -133,7 +150,7 @@ public class WandShooter : MonoBehaviour
 
     private void Shoot()
     {
-        if (spellPrefabs.Length == 0 || spellPrefabs[currentSpellIndex] == null)
+        if (spellPrefabs.Length == 0 || spellPrefabs[currentIndex] == null)
             return;
 
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
@@ -162,7 +179,7 @@ public class WandShooter : MonoBehaviour
 
     private void SpawnSpell(Vector3 position, Quaternion rotation)
     {
-        GameObject prefab = spellPrefabs[currentSpellIndex];
+        GameObject prefab = spellPrefabs[currentIndex];
         if (prefab == null) return;
 
         GameObject spell = Instantiate(prefab, position, rotation);

@@ -8,11 +8,16 @@ public class GhostMovement : MonoBehaviour
     public float rotationSpeed = 5f;
 
     [Header("Separation Settings")]
-    public float separationDistance = 0.3f;   // how far ghosts try to stay apart
-    public float separationStrength = 0.25f;   // lower = gentler push
-    public float separationSmoothing = 5f;    // higher = smoother blending
+    public float separationDistance = 0.3f;
+    public float separationStrength = 0.25f;
+    public float separationSmoothing = 5f;
 
-    private static readonly string GhostTag = "Ghost"; // assign this tag to your ghost prefab
+    [Header("Height Settings")]
+    [Tooltip("How far below the player's eye ghosts are allowed to go.")]
+    public float minHeightOffset = -0.5f;
+    public float heightAdjustSpeed = 3f;
+
+    private static readonly string GhostTag = "Ghost";
     private Vector3 smoothedSeparation = Vector3.zero;
 
     public void SetTarget(Transform newTarget)
@@ -27,7 +32,7 @@ public class GhostMovement : MonoBehaviour
         // --- Step 1: Base direction toward player ---
         Vector3 direction = (target.position - transform.position).normalized;
 
-        // --- Step 2: Calculate separation (smoothed) ---
+        // --- Step 2: Separation between ghosts ---
         Vector3 rawSeparation = Vector3.zero;
         GameObject[] allGhosts = GameObject.FindGameObjectsWithTag(GhostTag);
 
@@ -44,14 +49,12 @@ public class GhostMovement : MonoBehaviour
             }
         }
 
-        // Smooth separation force over time to prevent jitter/bouncing
         smoothedSeparation = Vector3.Lerp(smoothedSeparation, rawSeparation, Time.deltaTime * separationSmoothing);
 
-        // Combine
         if (smoothedSeparation != Vector3.zero)
             direction = (direction + smoothedSeparation).normalized;
 
-        // --- Step 3: Rotate smoothly ---
+        // --- Step 3: Rotate to face player ---
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -62,11 +65,24 @@ public class GhostMovement : MonoBehaviour
             );
         }
 
-        // --- Step 4: Move toward player until stop distance ---
+        // --- Step 4: Move toward player ---
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         if (distanceToTarget > stopDistance)
         {
             transform.position += direction * speed * Time.deltaTime;
+        }
+
+        // --- Step 5: Clamp height to minimum eye level ---
+        float minAllowedHeight = target.position.y + minHeightOffset;
+        if (transform.position.y < minAllowedHeight)
+        {
+            Vector3 corrected = transform.position;
+            corrected.y = Mathf.Lerp(
+                corrected.y,
+                minAllowedHeight,
+                Time.deltaTime * heightAdjustSpeed
+            );
+            transform.position = corrected;
         }
     }
 }
