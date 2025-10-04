@@ -37,16 +37,14 @@ public class WandShooter : MonoBehaviour
     public GameObject waterOverlay;
     public GameObject windOverlay;
     private GameObject[] spellOverlays;
-    
+
     private bool isFiring = false;
     private float lastShotTime;
     private Coroutine rechargeCoroutine;
 
-
     void Awake()
     {
         spellOverlays = new GameObject[] { fireOverlay, waterOverlay, windOverlay };
-
     }
 
     private void Start()
@@ -54,7 +52,6 @@ public class WandShooter : MonoBehaviour
         currentMana = maxMana;
         UpdateManaBar();
         SelectWand(0); // Start with first wand
-
     }
 
     private void Update()
@@ -101,8 +98,8 @@ public class WandShooter : MonoBehaviour
             if (wands[i] != null)
                 wands[i].SetActive(i == index);
 
-                if (spellOverlays[i] != null)
-                    spellOverlays[i].SetActive(i != index);
+            if (spellOverlays[i] != null)
+                spellOverlays[i].SetActive(i != index);
         }
     }
 
@@ -116,7 +113,6 @@ public class WandShooter : MonoBehaviour
                 currentMana -= 1f;
                 lastShotTime = Time.time;
 
-                // Stop any recharge while firing
                 if (rechargeCoroutine != null)
                 {
                     StopCoroutine(rechargeCoroutine);
@@ -124,17 +120,12 @@ public class WandShooter : MonoBehaviour
                 }
             }
 
-            // If mana is 0, allow slow incremental recharge while holding
-            if (currentMana < 1f)
-            {
-                if (rechargeCoroutine == null)
-                    rechargeCoroutine = StartCoroutine(HoldRecharge());
-            }
+            if (currentMana < 1f && rechargeCoroutine == null)
+                rechargeCoroutine = StartCoroutine(HoldRecharge());
 
             yield return new WaitForSeconds(rapidFireRate);
         }
 
-        // When player stops firing, start fast recharge if mana < max
         if (rechargeCoroutine == null)
             rechargeCoroutine = StartCoroutine(FastRechargeAfterDelay());
     }
@@ -188,7 +179,6 @@ public class WandShooter : MonoBehaviour
         }
         else
         {
-            // Spawn effect far along the ray if nothing hit
             Vector3 missPoint = ray.origin + ray.direction * shootingRange;
             SpawnSpell(missPoint, Quaternion.LookRotation(ray.direction));
         }
@@ -207,5 +197,12 @@ public class WandShooter : MonoBehaviour
     {
         if (manaBar != null)
             manaBar.value = currentMana / maxMana;
+    }
+
+    // ✅ New method to add mana from potions
+    public void AddMana(float amount)
+    {
+        currentMana = Mathf.Min(currentMana + amount, maxMana);
+        UpdateManaBar();
     }
 }

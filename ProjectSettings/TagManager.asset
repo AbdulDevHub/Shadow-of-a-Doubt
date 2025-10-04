@@ -6,6 +6,11 @@ TagManager:
   tags:
   - CinemachineTarget
   - Ghost
+  - FxTemporaire
+  - HealthPotion30
+  - UltimateHealthPotion
+  - ManaPotion30
+  - UltimateManaPotion
   layers:
   - Default
   - TransparentFX
