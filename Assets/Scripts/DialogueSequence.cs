@@ -32,6 +32,7 @@ public class DialogueSequence : MonoBehaviour
     public float typingSpeed = 0.03f; // Typing delay per character
 
     [Header("End Panel")]
+    public bool hasEndPanel;
     public GameObject endPanel;
     public EndPanelController endPanelController;
     public float endPanelDelay = 1f; // pause before showing panel
@@ -57,25 +58,31 @@ public class DialogueSequence : MonoBehaviour
         dialogueUI.SetActive(true);
         yield return StartCoroutine(RunDialogue());
 
-        // Step 3: Hide dialogue and fade to 75% black
+        // Step 3: Hide dialogue
         dialogueUI.SetActive(false);
-        yield return StartCoroutine(Fade(0, 0.75f));
 
-        // Step 4: Pause before showing EndPanel
-        yield return new WaitForSeconds(endPanelDelay);
+        if (hasEndPanel)
+        {   
+            //  and fade to 75% black
+            yield return StartCoroutine(Fade(0, 0.75f));
 
-        // Step 5: Show EndPanel
-        if (endPanel != null)
-        {
-            endPanel.SetActive(true);
+            // Step 4: Pause before showing EndPanel
+            yield return new WaitForSeconds(endPanelDelay);
 
-            // Show cursor for UI buttons
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            // Step 5: Show EndPanel
+            if (endPanel != null)
+            {
+                endPanel.SetActive(true);
 
-            if (endPanelController != null)
-                endPanelController.SetScore(score);
+                // Show cursor for UI buttons
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+
+                if (endPanelController != null)
+                    endPanelController.SetScore(score);
+            }
         }
+            
     }
 
     IEnumerator Fade(float from, float to)

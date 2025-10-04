@@ -32,15 +32,29 @@ public class WandShooter : MonoBehaviour
     [Tooltip("Delay before fast recharge begins.")]
     public float rechargeDelay = 2f;
 
+    [Header("UI")]
+    public GameObject fireOverlay;
+    public GameObject waterOverlay;
+    public GameObject windOverlay;
+    private GameObject[] spellOverlays;
+    
     private bool isFiring = false;
     private float lastShotTime;
     private Coroutine rechargeCoroutine;
+
+
+    void Awake()
+    {
+        spellOverlays = new GameObject[] { fireOverlay, waterOverlay, windOverlay };
+
+    }
 
     private void Start()
     {
         currentMana = maxMana;
         UpdateManaBar();
         SelectWand(0); // Start with first wand
+
     }
 
     private void Update()
@@ -86,6 +100,9 @@ public class WandShooter : MonoBehaviour
         {
             if (wands[i] != null)
                 wands[i].SetActive(i == index);
+
+                if (spellOverlays[i] != null)
+                    spellOverlays[i].SetActive(i != index);
         }
     }
 
