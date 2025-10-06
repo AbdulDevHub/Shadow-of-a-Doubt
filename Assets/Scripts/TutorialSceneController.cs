@@ -215,6 +215,27 @@ public class TutorialSceneStandalone : MonoBehaviour
     private void SpawnSpellAt(Vector3 pos, Quaternion rot)
     {
         GameObject go = Instantiate(spellPrefab, pos, rot);
+
+        // 🔹 Apply particle scaling fix
+        // Tutorial only uses the first spell, so we’ll scale it down directly
+        float scaleFactor = 0.05f; // smaller visual effect
+
+        // Scale transform (in case the prefab supports it)
+        go.transform.localScale = Vector3.one * scaleFactor;
+
+        // Also shrink internal particle systems that ignore transform scaling
+        foreach (var ps in go.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = ps.main;
+            main.startSizeMultiplier *= scaleFactor;
+            main.startSpeedMultiplier *= scaleFactor;
+            main.gravityModifierMultiplier *= scaleFactor;
+
+            var shape = ps.shape;
+            if (shape.enabled)
+                shape.radius *= scaleFactor;
+        }
+
         Destroy(go, burstLifetime);
     }
     #endregion

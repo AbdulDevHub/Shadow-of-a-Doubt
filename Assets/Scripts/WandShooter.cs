@@ -208,6 +208,24 @@ public class WandShooter : MonoBehaviour
         if (prefab == null) return;
 
         GameObject spell = Instantiate(prefab, position, rotation);
+
+        // 🔹 Scale per spell type
+        // Fire (0) and Water (1) are smaller; Wind (2) is full size
+        float scaleFactor = (currentIndex == 0 || currentIndex == 1) ? 0.05f : 1f;
+
+        // 🔹 Adjust internal particle systems
+        foreach (var ps in spell.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = ps.main;
+            main.startSizeMultiplier *= scaleFactor;
+            main.startSpeedMultiplier *= scaleFactor;
+            main.gravityModifierMultiplier *= scaleFactor;
+
+            var shape = ps.shape;
+            if (shape.enabled)
+                shape.radius *= scaleFactor;
+        }
+
         Destroy(spell, burstLifetime);
     }
 
