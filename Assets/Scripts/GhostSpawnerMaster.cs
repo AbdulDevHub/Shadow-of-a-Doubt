@@ -24,8 +24,10 @@ public class GhostSpawnerMaster : MonoBehaviour
         public GameObject potionPrefab;  // Different prefab per wave
     }
 
+    [Header("Spawner Settings")]
     public List<Wave> waves = new List<Wave>();
     public Transform playerTransform;
+    public bool startOnSceneLoad = true; // Toggle in Inspector
 
     private List<Transform> spawnPoints = new List<Transform>();
 
@@ -42,6 +44,14 @@ public class GhostSpawnerMaster : MonoBehaviour
     }
 
     void Start()
+    {
+        if (startOnSceneLoad)
+        {
+            StartCoroutine(HandleWaves());
+        }
+    }
+
+    public void StartSpawning()
     {
         StartCoroutine(HandleWaves());
     }
@@ -60,7 +70,7 @@ public class GhostSpawnerMaster : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnWave(Wave wave)
+    public IEnumerator SpawnWave(Wave wave)
     {
         foreach (var ghostEntry in wave.ghostsInWave)
         {

@@ -31,6 +31,9 @@ public class DialogueSequence : MonoBehaviour
     public List<DialogueLine> dialogueLines = new List<DialogueLine>();
     public float typingSpeed = 0.03f; // Typing delay per character
 
+    [Header("Boss Battle Settings")]
+    public bool isBossBattle = false; 
+
     [Header("End Panel")]
     public bool hasEndPanel;
     public GameObject endPanel;
@@ -61,20 +64,27 @@ public class DialogueSequence : MonoBehaviour
         // Step 3: Hide dialogue
         dialogueUI.SetActive(false);
 
-        if (hasEndPanel)
-        {   
-            //  and fade to 75% black
-            yield return StartCoroutine(Fade(0, 0.75f));
+        // 🔹 Only enable witch health bar and attack if this is a boss battle
+        if (isBossBattle)
+        {
+            WitchHealth witch = FindObjectOfType<WitchHealth>();
+            if (witch != null)
+                witch.EnableHealthBar();
 
-            // Step 4: Pause before showing EndPanel
+            WitchAttackController attack = FindObjectOfType<WitchAttackController>();
+            if (attack != null)
+                attack.StartAttacks();
+        }
+
+        if (hasEndPanel)
+        {
+            // fade to 75% black
+            yield return StartCoroutine(Fade(0, 0.75f));
             yield return new WaitForSeconds(endPanelDelay);
 
-            // Step 5: Show EndPanel
             if (endPanel != null)
             {
                 endPanel.SetActive(true);
-
-                // Show cursor for UI buttons
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
 
@@ -82,7 +92,6 @@ public class DialogueSequence : MonoBehaviour
                     endPanelController.SetScore(score);
             }
         }
-            
     }
 
     IEnumerator Fade(float from, float to)

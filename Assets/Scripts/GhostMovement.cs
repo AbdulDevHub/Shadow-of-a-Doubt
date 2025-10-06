@@ -20,8 +20,12 @@ public class GhostMovement : MonoBehaviour
     private Vector3 smoothedSeparation = Vector3.zero;
 
     private float speedMultiplier = 1f;
-    private Vector3 pushVelocity = Vector3.zero;
-    private float pushDecay = 2f;
+
+    // --- Pushback system ---
+    private Vector3 pushVelocity = Vector3.zero;          // current push velocity (units/sec)
+    public float pushDecay = 2f;                          // higher = decays faster
+    public float pushForwardReductionThreshold = 0.2f;    // when pushVelocity.magnitude > this, reduce forward movement
+    [Range(0f,1f)] public float forwardReductionWhilePushed = 0.5f; // fraction of forward speed while pushed
 
     public void SetTarget(Transform newTarget)
     {
@@ -35,7 +39,12 @@ public class GhostMovement : MonoBehaviour
 
     public void ApplyPushback(Vector3 push)
     {
-        pushVelocity += push; // Includes vertical component
+        // Expect `push` to be a velocity impulse (e.g. direction * magnitude in units/sec).
+        // If you want `push` to be an instant displacement, multiply it here by some factor,
+        // or change how GhostHealth passes it in.
+        pushVelocity += push;
+        // Optional debug:
+        // Debug.Log($"ApplyPushback: added {push}, new pushVelocity = {pushVelocity}");
     }
 
     void Update()
@@ -43,7 +52,9 @@ public class GhostMovement : MonoBehaviour
         if (target == null) return;
 
         // --- Step 1: Base direction toward player ---
-        Vector3 direction = (target.position - transform.position).normalized;
+        Vector3 toTarget = target.position - transform.position;
+        float distanceToTarget = toTarget.magnitude;
+        Vector3 direction = toTarget.normalized;
 
         // --- Step 2: Separation between ghosts ---
         Vector3 rawSeparation = Vector3.zero;
@@ -75,17 +86,24 @@ public class GhostMovement : MonoBehaviour
         }
 
         // --- Step 4: Move toward player + apply pushback ---
-        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+        // Determine forward movement; reduce it while push is strong so push is visible.
+        Vector3 forwardMove = Vector3.zero;
         if (distanceToTarget > stopDistance)
         {
-            // Keep push magnitude instead of normalizing
-            Vector3 move = direction * speed * speedMultiplier * Time.deltaTime;
-            Vector3 push = pushVelocity * Time.deltaTime;
-            transform.position += move + push;
+            float forwardFactor = 1f;
+            if (pushVelocity.magnitude > pushForwardReductionThreshold)
+                forwardFactor = forwardReductionWhilePushed;
 
-            // Decay push velocity
-            pushVelocity = Vector3.Lerp(pushVelocity, Vector3.zero, Time.deltaTime * pushDecay);
+            forwardMove = direction * speed * speedMultiplier * forwardFactor * Time.deltaTime;
         }
+
+        // Apply push every frame (even if within stopDistance)
+        Vector3 pushDelta = pushVelocity * Time.deltaTime;
+
+        transform.position += forwardMove + pushDelta;
+
+        // Decay push velocity smoothly
+        pushVelocity = Vector3.Lerp(pushVelocity, Vector3.zero, Time.deltaTime * pushDecay);
 
         // --- Step 5: Clamp height ---
         float minAllowedHeight = target.position.y + minHeightOffset;

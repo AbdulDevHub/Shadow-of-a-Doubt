@@ -11,6 +11,7 @@ public class WandShooter : MonoBehaviour
     public LayerMask hitMask = ~0;
 
     [Header("Wands & Spells")]
+    [Tooltip("Assign the wand GameObjects here (visuals/models). Only one will be active at a time.")]
     public GameObject[] wands;
     [Tooltip("Assign spell prefabs here. Index must match the wand index.")]
     public GameObject[] spellPrefabs = new GameObject[3];
@@ -21,9 +22,14 @@ public class WandShooter : MonoBehaviour
     public Slider manaBar;
     public float maxMana = 10f;
     private float currentMana;
+
+    [Tooltip("Seconds per shot when holding fire.")]
     public float rapidFireRate = 0.2f;
+    [Tooltip("Mana per second while holding at 0.")]
     public float slowRechargeRate = 1f;
+    [Tooltip("Mana per second after idle.")]
     public float fastRechargeRate = 5f;
+    [Tooltip("Delay before fast recharge begins.")]
     public float rechargeDelay = 2f;
 
     [Header("UI")]
@@ -45,7 +51,7 @@ public class WandShooter : MonoBehaviour
     {
         currentMana = maxMana;
         UpdateManaBar();
-        SelectWand(0); // Start with Fire wand
+        SelectWand(0); // Start with first wand
     }
 
     private void Update()
@@ -86,6 +92,7 @@ public class WandShooter : MonoBehaviour
 
         currentIndex = index;
 
+        // Activate only the selected wand
         for (int i = 0; i < wands.Length; i++)
         {
             if (wands[i] != null)
@@ -158,12 +165,13 @@ public class WandShooter : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, shootingRange, hitMask, QueryTriggerInteraction.Ignore))
         {
+            // Check for GhostHealth
             GhostHealth ghost = hit.collider.GetComponentInParent<GhostHealth>()
-                              ?? hit.collider.GetComponentInChildren<GhostHealth>();
+                            ?? hit.collider.GetComponentInChildren<GhostHealth>();
 
             // Spell type based on wand index
             ElementType spellType = (ElementType)currentIndex; // 0=Fire, 1=Water, 2=Wind
-
+            
             if (ghost != null)
             {
                 SpawnSpell(hit.point, Quaternion.identity);
@@ -171,6 +179,20 @@ public class WandShooter : MonoBehaviour
                 return;
             }
 
+            WitchHealth witch = hit.collider.GetComponentInParent<WitchHealth>()
+                ?? hit.collider.GetComponentInChildren<WitchHealth>();
+
+            if (witch != null)
+            {
+                SpawnSpell(hit.point, Quaternion.identity);
+
+                // 🔹 Pass spell index so WitchHealth can check shield itself
+                witch.TakeDamage(1f, currentIndex);
+
+                return;
+            }
+
+            // If no health component, just spawn spell at hit point
             SpawnSpell(hit.point, Quaternion.LookRotation(ray.direction));
         }
         else
@@ -195,6 +217,7 @@ public class WandShooter : MonoBehaviour
             manaBar.value = currentMana / maxMana;
     }
 
+    // ✅ New method to add mana from potions
     public void AddMana(float amount)
     {
         currentMana = Mathf.Min(currentMana + amount, maxMana);

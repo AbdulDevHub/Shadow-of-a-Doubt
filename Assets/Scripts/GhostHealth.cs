@@ -149,7 +149,14 @@ public class GhostHealth : MonoBehaviour
     private void Die()
     {
         if (defaultSmokeEffect != null)
-            Instantiate(defaultSmokeEffect, transform.position, Quaternion.identity);
+        {
+            GameObject spawnedFx = Instantiate(
+                defaultSmokeEffect,
+                transform.position,
+                defaultSmokeEffect.transform.rotation
+            );
+            spawnedFx.transform.localScale = Vector3.one * defaultSmokeEffect.transform.localScale.x;
+        }
 
         if (GhostKillManager.Instance != null)
             GhostKillManager.Instance.RegisterKill();
