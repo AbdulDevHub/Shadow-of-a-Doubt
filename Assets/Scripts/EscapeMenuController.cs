@@ -31,9 +31,6 @@ public class EscapeMenuController : MonoBehaviour
     public Button quitButton;
     public Button difficultyButton;
 
-    private enum Difficulty { Easy, Med, Hard }
-    private Difficulty currentDifficulty = Difficulty.Easy;
-
     void Start()
     {
         SetImageAlpha(0f);
@@ -169,12 +166,9 @@ public class EscapeMenuController : MonoBehaviour
 
     public void ChangeDifficulty()
     {
-        // Cycle through enum values
-        currentDifficulty = (Difficulty)(((int)currentDifficulty + 1) % System.Enum.GetValues(typeof(Difficulty)).Length);
+        DifficultyManager.Instance.CycleDifficulty();
         UpdateDifficultyButtonText();
-
-        Debug.Log("Difficulty changed to: " + currentDifficulty);
-        // TODO: Apply difficulty changes to your game systems
+        Debug.Log("Difficulty changed to: " + DifficultyManager.Instance.CurrentDifficulty);
     }
 
     private void UpdateDifficultyButtonText()
@@ -183,7 +177,7 @@ public class EscapeMenuController : MonoBehaviour
         {
             TextMeshProUGUI btnText = difficultyButton.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
-                btnText.text = "Difficulty: " + currentDifficulty.ToString();
+                btnText.text = "Difficulty: " + DifficultyManager.Instance.CurrentDifficulty;
         }
     }
 }

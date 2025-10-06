@@ -16,8 +16,6 @@ public class GhostSpawnerMaster : MonoBehaviour
     {
         [Header("Ghost Setup")]
         public List<GhostEntry> ghostsInWave = new List<GhostEntry>();
-        public float minSpawnInterval = 1f;
-        public float maxSpawnInterval = 3f;
 
         [Header("Potion Drop Options")]
         public bool dropPotion = false;
@@ -72,13 +70,15 @@ public class GhostSpawnerMaster : MonoBehaviour
 
     public IEnumerator SpawnWave(Wave wave)
     {
+        var (minInterval, maxInterval) = DifficultyManager.Instance.GetSpawnIntervals();
+
         foreach (var ghostEntry in wave.ghostsInWave)
         {
             for (int i = 0; i < ghostEntry.amount; i++)
             {
                 SpawnGhost(ghostEntry.ghostPrefab);
 
-                float delay = Random.Range(wave.minSpawnInterval, wave.maxSpawnInterval);
+                float delay = Random.Range(minInterval, maxInterval);
                 yield return new WaitForSeconds(delay);
             }
         }

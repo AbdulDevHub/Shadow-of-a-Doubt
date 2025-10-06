@@ -74,6 +74,11 @@ public class TutorialSceneStandalone : MonoBehaviour
     private float ghostCurrentHealth;
     private Slider ghostHealthBar;
 
+    // 🔹 Burn system (added)
+    private Coroutine burnCoroutine;
+    public float burnDamagePerSecond = 0.5f;
+    public float burnDuration = 3f;
+
     // Potion state
     private GameObject spawnedPotion = null;
 
@@ -321,8 +326,36 @@ public class TutorialSceneStandalone : MonoBehaviour
         if (ghostHealthBar != null)
             ghostHealthBar.value = ghostCurrentHealth / ghostMaxHealth;
 
+        // 🔹 Trigger burn effect (matches GhostHealth behavior)
+        if (burnCoroutine != null)
+            StopCoroutine(burnCoroutine);
+        burnCoroutine = StartCoroutine(ApplyBurn());
+
         if (ghostCurrentHealth <= 0f)
             KillGhost();
+    }
+
+    private IEnumerator ApplyBurn()
+    {
+        float elapsed = 0f;
+        while (elapsed < burnDuration && spawnedGhost != null)
+        {
+            ghostCurrentHealth -= burnDamagePerSecond * Time.deltaTime;
+            if (ghostCurrentHealth < 0f) ghostCurrentHealth = 0f;
+
+            if (ghostHealthBar != null)
+                ghostHealthBar.value = ghostCurrentHealth / ghostMaxHealth;
+
+            if (ghostCurrentHealth <= 0f)
+            {
+                KillGhost();
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        burnCoroutine = null;
     }
 
     private void KillGhost()
