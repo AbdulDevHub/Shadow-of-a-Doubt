@@ -229,7 +229,7 @@ public class TutorialSceneStandalone : MonoBehaviour
     #region Tutorial Sequence
     private IEnumerator RunTutorial()
     {
-        yield return StartCoroutine(Fade(1f, 0f, 1f));
+        yield return StartCoroutine(Fade(1f, 0f, 2f));
 
         // Walking tutorial
         if (!string.IsNullOrEmpty(walkingTutorialDialogue))
