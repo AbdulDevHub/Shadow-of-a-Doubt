@@ -32,6 +32,9 @@ public class WandShooter : MonoBehaviour
     [Tooltip("Delay before fast recharge begins.")]
     public float rechargeDelay = 2f;
 
+    [Header("Mana Lock")]
+    public bool isManaLocked = false; // Prevents mana use during ultimate mana potion
+
     [Header("UI")]
     public GameObject fireOverlay;
     public GameObject waterOverlay;
@@ -107,7 +110,7 @@ public class WandShooter : MonoBehaviour
     {
         while (isFiring)
         {
-            if (currentMana >= 1f)
+            if (!isManaLocked && currentMana >= 1f) // <-- check lock here
             {
                 Shoot();
                 currentMana -= 1f;
@@ -120,13 +123,13 @@ public class WandShooter : MonoBehaviour
                 }
             }
 
-            if (currentMana < 1f && rechargeCoroutine == null)
+            if ((!isManaLocked && currentMana < 1f) && rechargeCoroutine == null)
                 rechargeCoroutine = StartCoroutine(HoldRecharge());
 
             yield return new WaitForSeconds(rapidFireRate);
         }
 
-        if (rechargeCoroutine == null)
+        if (rechargeCoroutine == null && !isManaLocked)
             rechargeCoroutine = StartCoroutine(FastRechargeAfterDelay());
     }
 

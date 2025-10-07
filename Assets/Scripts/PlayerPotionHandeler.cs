@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem;
@@ -13,37 +12,28 @@ public class PlayerPotionHandler : MonoBehaviour
     [Header("Camera Reference")]
     [SerializeField] private Camera playerCamera;
 
-    [Header("Sliders")]
-    [SerializeField] private Slider healthSlider;
-
     [Header("Potion Prefabs (for identification)")]
     public GameObject healthPotion30Prefab;
     public GameObject ultimateHealthPotionPrefab;
     public GameObject manaPotion30Prefab;
     public GameObject ultimateManaPotionPrefab;
 
-    [Header("Stats")]
-    public float maxHealth = 100f;
-
-    [Header("WandShooter Reference")]
+    [Header("References")]
+    [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private WandShooter wandShooter;
 
     [Header("Lock Images (for ultimate potions)")]
     [SerializeField] private GameObject healthLockImage;
     [SerializeField] private GameObject manaLockImage;
 
-    private float currentHealth;
-    private bool isHealthLocked = false;
     private GameObject lookedAtPotion;
 
     private void Start()
     {
-        currentHealth = maxHealth;
-        UpdateHealthSlider();
+        if (playerHealth == null)
+            Debug.LogError("PlayerHealth reference not set in PlayerPotionHandler!");
 
-        if (interactText != null)
-            interactText.gameObject.SetActive(false);
-
+        if (interactText != null) interactText.gameObject.SetActive(false);
         if (healthLockImage != null) healthLockImage.SetActive(false);
         if (manaLockImage != null) manaLockImage.SetActive(false);
     }
@@ -91,8 +81,8 @@ public class PlayerPotionHandler : MonoBehaviour
 
     private GameObject FindClosestVisiblePotion()
     {
-        GameObject[] potions = GameObject.FindGameObjectsWithTag("HealthPotion30");
-        potions = CombineArrays(potions,
+        GameObject[] potions = CombineArrays(
+            GameObject.FindGameObjectsWithTag("HealthPotion30"),
             GameObject.FindGameObjectsWithTag("UltimateHealthPotion"),
             GameObject.FindGameObjectsWithTag("ManaPotion30"),
             GameObject.FindGameObjectsWithTag("UltimateManaPotion")
@@ -127,10 +117,8 @@ public class PlayerPotionHandler : MonoBehaviour
         GameObject[] result = new GameObject[total];
         int index = 0;
         foreach (var arr in arrays)
-        {
             foreach (var item in arr)
                 result[index++] = item;
-        }
 
         return result;
     }
@@ -154,22 +142,24 @@ public class PlayerPotionHandler : MonoBehaviour
 
     private void ApplyHealthPotion(float percentage)
     {
-        if (isHealthLocked) return;
-        currentHealth = Mathf.Min(maxHealth, currentHealth + maxHealth * percentage);
-        UpdateHealthSlider();
+        if (playerHealth == null || playerHealth.isHealthLocked) return;
+
+        float healAmount = playerHealth.maxHealth * percentage;
+        playerHealth.Heal(healAmount); // Health UI updates automatically
     }
 
     private IEnumerator ApplyUltimateHealthPotion()
     {
-        isHealthLocked = true;
-        currentHealth = maxHealth;
-        UpdateHealthSlider();
+        if (playerHealth == null) yield break;
+
+        playerHealth.isHealthLocked = true;
+        playerHealth.Heal(playerHealth.maxHealth);
 
         if (healthLockImage != null) healthLockImage.SetActive(true);
 
         yield return new WaitForSeconds(3f);
 
-        isHealthLocked = false;
+        playerHealth.isHealthLocked = false;
         if (healthLockImage != null) healthLockImage.SetActive(false);
     }
 
@@ -185,18 +175,14 @@ public class PlayerPotionHandler : MonoBehaviour
     {
         if (wandShooter == null) yield break;
 
+        wandShooter.isManaLocked = true;
         wandShooter.AddMana(wandShooter.maxMana);
 
         if (manaLockImage != null) manaLockImage.SetActive(true);
 
         yield return new WaitForSeconds(3f);
 
+        wandShooter.isManaLocked = false;
         if (manaLockImage != null) manaLockImage.SetActive(false);
-    }
-
-    private void UpdateHealthSlider()
-    {
-        if (healthSlider != null)
-            healthSlider.value = currentHealth / maxHealth;
     }
 }

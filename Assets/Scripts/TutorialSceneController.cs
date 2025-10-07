@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using StarterAssets;
 
 public class TutorialSceneStandalone : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class TutorialSceneStandalone : MonoBehaviour
 
     [Header("Player")]
     public Transform playerRoot;
+    private FirstPersonController playerController;
 
     [Header("Mana / Spell")]
     public float maxMana = 10f;
@@ -48,6 +50,7 @@ public class TutorialSceneStandalone : MonoBehaviour
     [Header("Health (tutorial)")]
     public float maxHealth = 100f;
     private float currentHealth = 70f;
+    private float minTutorialHealth;
 
     [Header("Potion Interaction")]
     public float interactDistance = 4f;
@@ -61,6 +64,18 @@ public class TutorialSceneStandalone : MonoBehaviour
     [TextArea(3, 10)] public string guardingDutyDialogue;
     [TextArea(3, 10)] public string keepEyesPeeledDialogue;
 
+    [Header("Ghost Attack Settings")]
+    public GameObject iceAttackEffectPrefab;
+    public Slider playerHealthBar;
+    public float ghostAttackDamage = 0.5f;
+    public float ghostAttackCooldown = 4f;
+    public float ghostStopDistance = 2f;
+    public float ghostMoveSpeed = 1.5f;
+    
+    [Header("Ice Ghost Slow Effect")]
+    public float slowMultiplier = 0.5f;
+    public float slowDuration = 3f;
+
     // Shooting state
     private bool allowShooting = false;
     private bool isFiring = false;
@@ -73,14 +88,19 @@ public class TutorialSceneStandalone : MonoBehaviour
     private float ghostMaxHealth;
     private float ghostCurrentHealth;
     private Slider ghostHealthBar;
+    private float ghostLastAttackTime = -999f;
+    private Coroutine ghostAttackCoroutine = null;
 
-    // 🔹 Burn system (added)
+    // Burn system
     private Coroutine burnCoroutine;
     public float burnDamagePerSecond = 0.5f;
     public float burnDuration = 3f;
 
     // Potion state
     private GameObject spawnedPotion = null;
+
+    // Player Health
+    private PlayerHealth playerHealthComponent;
 
     private void Awake()
     {
@@ -90,11 +110,17 @@ public class TutorialSceneStandalone : MonoBehaviour
 
     private void Start()
     {
+        // Hide cursor
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         currentMana = maxMana;
         UpdateManaBar();
 
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();
+        // ✅ Ensure player can't drop below 30% health (i.e. only lose 70%)
+        minTutorialHealth = maxHealth * 0.3f;
 
         if (dialogueUI != null) dialogueUI.SetActive(false);
         if (combatUIParent != null) combatUIParent.SetActive(false);
@@ -105,6 +131,18 @@ public class TutorialSceneStandalone : MonoBehaviour
         if (interactText != null)
             interactText.gameObject.SetActive(false);
 
+        // Ensure player has PlayerHealth
+        playerHealthComponent = playerRoot.GetComponent<PlayerHealth>();
+        if (playerHealthComponent == null)
+        {
+            playerHealthComponent = playerRoot.gameObject.AddComponent<PlayerHealth>();
+            playerHealthComponent.maxHealth = maxHealth;
+            playerHealthComponent.HealthBar = playerHealthBar;
+        }
+
+        // Get the FirstPersonController component
+        playerController = playerRoot.GetComponent<FirstPersonController>();
+
         StartCoroutine(RunTutorial());
     }
 
@@ -112,7 +150,118 @@ public class TutorialSceneStandalone : MonoBehaviour
     {
         if (allowShooting)
             HandleShootingInput();
+
+        // Handle ghost movement and attacks
+        if (spawnedGhost != null)
+            UpdateGhost();
     }
+
+    #region Ghost Movement & Attack
+    private void UpdateGhost()
+    {
+        if (playerRoot == null) return;
+
+        // Calculate distance and direction to player
+        Vector3 toPlayer = playerRoot.position - spawnedGhost.transform.position;
+        float distance = toPlayer.magnitude;
+        Vector3 direction = toPlayer.normalized;
+
+        // Move toward player if far enough
+        if (distance > ghostStopDistance)
+        {
+            spawnedGhost.transform.position += direction * ghostMoveSpeed * Time.deltaTime;
+            spawnedGhost.transform.LookAt(playerRoot);
+        }
+        else
+        {
+            // In attack range - attack if cooldown is ready
+            if (Time.time - ghostLastAttackTime >= ghostAttackCooldown)
+            {
+                ghostLastAttackTime = Time.time;
+                GhostAttackPlayer();
+            }
+        }
+    }
+
+    private void GhostAttackPlayer()
+    {
+        if (playerHealthComponent == null) return;
+
+        // Deal damage to player
+        playerHealthComponent.TakeDamage(ghostAttackDamage);
+
+        // ✅ Prevent health from dropping below 30% of max health
+        float minHealth = playerHealthComponent.maxHealth * 0.3f;
+        var field = typeof(PlayerHealth).GetField("currentHealth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (field != null)
+        {
+            float current = (float)field.GetValue(playerHealthComponent);
+            if (current < minHealth)
+            {
+                field.SetValue(playerHealthComponent, minHealth);
+                // Use existing method name:
+                var updateMethod = playerHealthComponent.GetType().GetMethod("UpdateHealthUI", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (updateMethod != null)
+                    updateMethod.Invoke(playerHealthComponent, null);
+            }
+        }
+
+        // Apply ice slow effect to player movement
+        if (playerController != null)
+            StartCoroutine(ApplyIceSlowToPlayer());
+
+        // Spawn ice attack effect at player position
+        if (iceAttackEffectPrefab != null && playerRoot != null)
+        {
+            GameObject effect = Instantiate(iceAttackEffectPrefab, playerRoot.position, Quaternion.identity);
+
+            float scaleFactor = 0.02f;
+            effect.transform.localScale = Vector3.one * scaleFactor;
+
+            foreach (var ps in effect.GetComponentsInChildren<ParticleSystem>())
+            {
+                var main = ps.main;
+                main.startSizeMultiplier *= scaleFactor;
+                main.startSpeedMultiplier *= scaleFactor;
+                main.gravityModifierMultiplier *= scaleFactor;
+
+                var shape = ps.shape;
+                if (shape.enabled)
+                    shape.radius *= scaleFactor;
+            }
+
+            Destroy(effect, 2f);
+        }
+
+        Debug.Log("Ghost attacked player for " + ghostAttackDamage + " damage!");
+    }
+
+    private IEnumerator ApplyIceSlowToPlayer()
+    {
+        if (playerController == null) yield break;
+
+        // Store original values
+        float originalMoveSpeed = playerController.MoveSpeed;
+        float originalSprintSpeed = playerController.SprintSpeed;
+        float originalRotationSpeed = playerController.RotationSpeed;
+
+        // Apply slow effect
+        playerController.MoveSpeed *= slowMultiplier;
+        playerController.SprintSpeed *= slowMultiplier;
+        playerController.RotationSpeed *= slowMultiplier;
+
+        Debug.Log($"Player slowed! Move: {playerController.MoveSpeed}, Sprint: {playerController.SprintSpeed}, Rotation: {playerController.RotationSpeed}");
+
+        yield return new WaitForSeconds(slowDuration);
+
+        // Restore values safely
+        playerController.MoveSpeed = originalMoveSpeed;
+        playerController.SprintSpeed = originalSprintSpeed;
+        playerController.RotationSpeed = originalRotationSpeed;
+
+        Debug.Log("Player speed restored!");
+    }
+    #endregion
 
     #region Shooting
     private void HandleShootingInput()
@@ -216,14 +365,9 @@ public class TutorialSceneStandalone : MonoBehaviour
     {
         GameObject go = Instantiate(spellPrefab, pos, rot);
 
-        // 🔹 Apply particle scaling fix
-        // Tutorial only uses the first spell, so we’ll scale it down directly
-        float scaleFactor = 0.05f; // smaller visual effect
-
-        // Scale transform (in case the prefab supports it)
+        float scaleFactor = 0.05f;
         go.transform.localScale = Vector3.one * scaleFactor;
 
-        // Also shrink internal particle systems that ignore transform scaling
         foreach (var ps in go.GetComponentsInChildren<ParticleSystem>())
         {
             var main = ps.main;
@@ -261,8 +405,7 @@ public class TutorialSceneStandalone : MonoBehaviour
         if (!string.IsNullOrEmpty(walkingTutorialDialogue))
             yield return StartCoroutine(ShowDialogue("Cat", walkingTutorialDialogue));
 
-        // Wait until the player moves a little
-        yield return StartCoroutine(WaitForMovement(2f)); // player must walk 2 units
+        yield return StartCoroutine(WaitForMovement(2f));
 
         // Shooting tutorial
         if (!string.IsNullOrEmpty(shootingTutorialDialogue))
@@ -271,37 +414,40 @@ public class TutorialSceneStandalone : MonoBehaviour
         allowShooting = true;
         yield return StartCoroutine(WaitForPractice());
 
-        // Ghost encounter
+        // ------------------ Ghost Encounter ------------------
         if (ghostPrefab != null)
         {
-            ghostPrefab.SetActive(true);
+            // Initialize ghost
             spawnedGhost = ghostPrefab;
             InitGhost(spawnedGhost);
+            
+            // Remove any existing GhostMoveAndAttack component
+            var oldAttack = spawnedGhost.GetComponent<GhostMoveAndAttack>();
+            if (oldAttack != null) Destroy(oldAttack);
 
-            GhostChase chase = spawnedGhost.AddComponent<GhostChase>();
-            chase.target = playerRoot;
+            // Activate the ghost
+            spawnedGhost.SetActive(true);
 
+            // Wait until the ghost is visible to the player camera
             yield return new WaitUntil(() => GhostVisibleToCamera(spawnedGhost));
 
+            // Show ghost encounter dialogue
             if (!string.IsNullOrEmpty(ghostEncounterDialogue))
                 yield return StartCoroutine(ShowDialogue("Cat", ghostEncounterDialogue, false));
 
+            // Enable player shooting during ghost encounter
             allowShooting = true;
         }
 
-        // Wait until ghost dies
         yield return new WaitUntil(() => spawnedGhost == null);
 
-        // Cat notices potion drop
         if (spawnedPotion != null && !string.IsNullOrEmpty(potionDropDialogue))
         {
             yield return StartCoroutine(ShowDialogue("Cat", potionDropDialogue, false));
         }
 
-        // Player picks up potion
         yield return StartCoroutine(HandlePotionPickup());
 
-        // After potion, continue tutorial dialogues
         if (!string.IsNullOrEmpty(healthRestoredDialogue))
             yield return StartCoroutine(ShowDialogue("Cat", healthRestoredDialogue));
         if (!string.IsNullOrEmpty(guardingDutyDialogue))
@@ -309,7 +455,6 @@ public class TutorialSceneStandalone : MonoBehaviour
         if (!string.IsNullOrEmpty(keepEyesPeeledDialogue))
             yield return StartCoroutine(ShowDialogue("Cat", keepEyesPeeledDialogue));
 
-        // Fade out and load next scene
         yield return StartCoroutine(Fade(0f, 1f, 2f));
         SceneManager.LoadScene("Level 1");
     }
@@ -317,11 +462,8 @@ public class TutorialSceneStandalone : MonoBehaviour
     private IEnumerator WaitForMovement(float requiredDistance = 2f)
     {
         Vector3 startPos = playerRoot.position;
-
         while (Vector3.Distance(startPos, playerRoot.position) < requiredDistance)
-        {
             yield return null;
-        }
     }
     #endregion
 
@@ -337,6 +479,8 @@ public class TutorialSceneStandalone : MonoBehaviour
             ghostHealthBar.maxValue = 1f;
             ghostHealthBar.value = 1f;
         }
+        
+        ghostLastAttackTime = -999f; // Reset attack timer
     }
 
     private void DamageGhost(float amount)
@@ -347,7 +491,6 @@ public class TutorialSceneStandalone : MonoBehaviour
         if (ghostHealthBar != null)
             ghostHealthBar.value = ghostCurrentHealth / ghostMaxHealth;
 
-        // 🔹 Trigger burn effect (matches GhostHealth behavior)
         if (burnCoroutine != null)
             StopCoroutine(burnCoroutine);
         burnCoroutine = StartCoroutine(ApplyBurn());
@@ -362,7 +505,7 @@ public class TutorialSceneStandalone : MonoBehaviour
         while (elapsed < burnDuration && spawnedGhost != null)
         {
             ghostCurrentHealth -= burnDamagePerSecond * Time.deltaTime;
-            if (ghostCurrentHealth < 0f) ghostCurrentHealth = 0f;
+            if (ghostCurrentHealth < 0f) ghostCurrentHealth = 0;
 
             if (ghostHealthBar != null)
                 ghostHealthBar.value = ghostCurrentHealth / ghostMaxHealth;
@@ -534,27 +677,5 @@ public class TutorialSceneStandalone : MonoBehaviour
     {
         currentMana = Mathf.Min(currentMana + amount, maxMana);
         UpdateManaBar();
-    }
-}
-
-public class GhostChase : MonoBehaviour
-{
-    public Transform target;
-    public float speed = 1.5f;
-    public float stopDistance = 1.5f;
-
-    private void Update()
-    {
-        if (target == null) return;
-
-        Vector3 dir = (target.position - transform.position);
-        float dist = dir.magnitude;
-
-        if (dist > stopDistance)
-        {
-            Vector3 move = dir.normalized;
-            transform.position += move * speed * Time.deltaTime;
-            transform.LookAt(target);
-        }
     }
 }

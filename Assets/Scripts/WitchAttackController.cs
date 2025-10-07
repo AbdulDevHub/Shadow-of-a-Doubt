@@ -200,10 +200,29 @@ public class WitchAttackController : MonoBehaviour
     {
         yield return new WaitForSeconds(crystalDelay);
 
-        if (circle != null)
-            circle.SetActive(false);
+        if (circle == null) yield break;
 
-        if (crystalEffectPrefab != null && circle != null)
+        // --- DAMAGE CHECK BEFORE CRYSTAL SPAWNS ---
+        if (player != null)
+        {
+            float circleRadius = 1.5f; // Adjust to match red circle size
+            float dist = Vector3.Distance(player.position, circle.transform.position);
+
+            if (dist <= circleRadius)
+            {
+                PlayerHealth ph = player.GetComponent<PlayerHealth>();
+                if (ph != null)
+                {
+                    ph.TakeDamage(5f); // 💥 Deal 5 damage
+                    Debug.Log("Player took 5 damage from crystal attack!");
+                }
+            }
+        }
+        // --- END DAMAGE CHECK ---
+
+        circle.SetActive(false);
+
+        if (crystalEffectPrefab != null)
         {
             GameObject crystal = Instantiate(crystalEffectPrefab, circle.transform.position, Quaternion.identity);
             crystal.transform.localScale = circle.transform.localScale;

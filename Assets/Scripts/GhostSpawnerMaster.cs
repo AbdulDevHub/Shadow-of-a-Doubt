@@ -105,7 +105,7 @@ public class GhostSpawnerMaster : MonoBehaviour
             gh.onGhostDied += OnGhostDied;
         }
 
-        GhostMovement gm = ghost.GetComponent<GhostMovement>();
+        GhostMoveAndAttack gm = ghost.GetComponent<GhostMoveAndAttack>();
         if (gm != null && playerTransform != null)
         {
             gm.SetTarget(playerTransform);
