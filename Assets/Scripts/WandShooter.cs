@@ -45,6 +45,10 @@ public class WandShooter : MonoBehaviour
     private float lastShotTime;
     private Coroutine rechargeCoroutine;
 
+    [Header("Combat UI Control")]
+    public GameObject combatUI; // Assign the combat UI used in the scene
+    private bool canUseWand = false; // Only true when combat UI is visible
+
     private void Awake()
     {
         spellOverlays = new GameObject[] { fireOverlay, waterOverlay, windOverlay };
@@ -55,18 +59,33 @@ public class WandShooter : MonoBehaviour
         currentMana = maxMana;
         UpdateManaBar();
         SelectWand(0); // Start with first wand
+
+        // Disable wand usage if combat UI exists
+        if (combatUI != null)
+            canUseWand = combatUI.activeInHierarchy; // <- FIX: use activeInHierarchy
+        else
+            canUseWand = true; // No combat UI means free to use
     }
 
     private void Update()
     {
+        if (!canUseWand)
+        {
+            // Check if combat UI became visible in hierarchy
+            if (combatUI != null && combatUI.activeInHierarchy)
+                canUseWand = true;
+            else
+                return; // Skip input until UI visible
+        }
+
         HandleFiringInput();
         HandleWandSwitching();
         UpdateManaBar();
     }
-
+    
     private void HandleFiringInput()
     {
-        if (Mouse.current == null) return;
+        if (!canUseWand || Mouse.current == null) return;
 
         if (Mouse.current.leftButton.isPressed)
         {
@@ -84,7 +103,8 @@ public class WandShooter : MonoBehaviour
 
     private void HandleWandSwitching()
     {
-        // Cycle through wands when pressing Q
+        if (!canUseWand) return;
+
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
             int nextIndex = (currentIndex + 1) % wands.Length;

@@ -31,6 +31,9 @@ public class DialogueSequence : MonoBehaviour
     public List<DialogueLine> dialogueLines = new List<DialogueLine>();
     public float typingSpeed = 0.03f; // Typing delay per character
 
+    [Header("Optional Combat UI")]
+    public GameObject combatUI;
+
     [Header("Boss Battle Settings")]
     public bool isBossBattle = false; 
 
@@ -40,6 +43,9 @@ public class DialogueSequence : MonoBehaviour
     public EndPanelController endPanelController;
     public float endPanelDelay = 1f; // pause before showing panel
 
+    [Header("Character Animation")]
+    [SerializeField] private Animator witchAnimator;
+
     [Header("Score Example")]
     public int score = 123; // Replace with your real score variable
 
@@ -47,6 +53,11 @@ public class DialogueSequence : MonoBehaviour
     {
         // Start fully black
         dialogueUI.SetActive(false);
+
+        // Hide combat UI if it exists
+        if (combatUI != null)
+            combatUI.SetActive(false);
+
         if (endPanel != null) endPanel.SetActive(false);
         fadePanel.color = new Color(0, 0, 0, 1);
         StartCoroutine(RunSceneSequence());
@@ -54,15 +65,32 @@ public class DialogueSequence : MonoBehaviour
 
     IEnumerator RunSceneSequence()
     {
-        // Step 1: Fade in from black
+        // Step 1: Prepare Witch
+        if (hasEndPanel && witchAnimator != null)
+        {
+            // 🔹 Disable root motion (if any)
+            witchAnimator.applyRootMotion = false;
+
+            // 🔹 Freeze her current pose by keeping Animator enabled but stop transitions
+            witchAnimator.speed = 0f;
+
+            // Optional: Ensure we start from default pose
+            witchAnimator.Play("Witch_Wait", 0, 0f);
+        }
+
+        // Step 2: Fade in from black
         yield return StartCoroutine(Fade(1, 0));
 
-        // Step 2: Show dialogue
+        // Step 3: Show dialogue
         dialogueUI.SetActive(true);
         yield return StartCoroutine(RunDialogue());
 
-        // Step 3: Hide dialogue
+        // Step 4: Hide dialogue
         dialogueUI.SetActive(false);
+        
+        // Step 5: Show combat UI if it exists
+        if (combatUI != null)
+            combatUI.SetActive(true);
 
         // 🔹 Only enable witch health bar and attack if this is a boss battle
         if (isBossBattle)
@@ -74,6 +102,15 @@ public class DialogueSequence : MonoBehaviour
             WitchAttackController attack = FindObjectOfType<WitchAttackController>();
             if (attack != null)
                 attack.StartAttacks();
+        }
+        else
+        {
+            // --- START GHOST SPAWNING AFTER DIALOGUE ---
+            GhostSpawnerMaster spawner = FindObjectOfType<GhostSpawnerMaster>();
+            if (spawner != null)
+            {
+                spawner.StartSpawning();
+            }
         }
 
         if (hasEndPanel)

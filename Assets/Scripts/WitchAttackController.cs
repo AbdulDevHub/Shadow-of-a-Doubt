@@ -10,6 +10,7 @@ public class WitchAttackController : MonoBehaviour
     private bool canAttack = false;
     private bool isTeleporting = false;
     private WitchShield shield;
+    private Animator animator;
 
     [Header("Ghost Spawning")]
     public GhostSpawnerMaster ghostSpawner;        // Assign in Inspector
@@ -41,6 +42,7 @@ public class WitchAttackController : MonoBehaviour
 
     private void Awake()
     {
+        animator = GetComponent<Animator>();
         shield = GetComponentInChildren<WitchShield>(true);
 
         // Cache circles
@@ -142,7 +144,10 @@ public class WitchAttackController : MonoBehaviour
             {
                 case 0: // Shield
                     if (shield != null)
+                    {
+                        animator.SetTrigger("Attack"); // 🔹 plays attack animation
                         shield.ActivateShield();
+                    }
                     break;
 
                 case 1: // Ghost summon
@@ -163,6 +168,8 @@ public class WitchAttackController : MonoBehaviour
     // -------------------------------
     private IEnumerator PerformGhostSummon()
     {
+        animator.SetTrigger("Attack"); // 🔹 plays attack animation
+
         // --- Check ghost count before summoning ---
         GameObject[] existingGhosts = GameObject.FindGameObjectsWithTag("Ghost");
         if (existingGhosts != null && existingGhosts.Length >= MaxGhostsAllowed)
@@ -214,6 +221,7 @@ public class WitchAttackController : MonoBehaviour
     // -------------------------------
     private IEnumerator PerformCrystalAttack()
     {
+        animator.SetTrigger("Attack"); // 🔹 plays attack animation
         if (redCircles == null || redCircles.Length == 0) yield break;
 
         int numCrystals = Random.Range(minCrystalsPerAttack, maxCrystalsPerAttack + 1);
@@ -288,6 +296,7 @@ public class WitchAttackController : MonoBehaviour
     // -------------------------------
     private IEnumerator TeleportRoutine(int targetIndex)
     {
+        animator.SetTrigger("Attack"); // 🔹 plays attack animation
         isTeleporting = true;
 
         Vector3 fromPos = teleportPoints[currentTeleportIndex].position;

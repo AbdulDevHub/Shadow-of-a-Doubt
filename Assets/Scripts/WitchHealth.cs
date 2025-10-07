@@ -12,6 +12,7 @@ public class WitchHealth : MonoBehaviour
     private Slider healthBar;
     private float currentHealth;
     private Image healthFill;
+    private Animator animator;
 
     [Header("UI References")]
     public Image fadePanel;      
@@ -27,6 +28,7 @@ public class WitchHealth : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+        animator = GetComponent<Animator>();
 
         healthBar = GetComponentInChildren<Slider>(true);
         if (healthBar != null)
@@ -96,6 +98,10 @@ public class WitchHealth : MonoBehaviour
 
         UpdateHealthBar();
 
+        // Play Damage animation
+        if (animator != null)
+            animator.SetTrigger("Damage");
+
         if (currentHealth <= 0)
         {
             StartCoroutine(DeathSequence());
@@ -112,6 +118,10 @@ public class WitchHealth : MonoBehaviour
     {
         isDead = true;
 
+        // 🔹 Play Dead animation
+        if (animator != null)
+            animator.SetTrigger("Dead");
+
         if (ghostIcon != null)
             ghostIcon.gameObject.SetActive(false);
 
@@ -121,6 +131,9 @@ public class WitchHealth : MonoBehaviour
         WitchAttackController attackController = GetComponent<WitchAttackController>();
         if (attackController != null)
             attackController.StopAttacks();
+
+        // Wait for the animation to finish before fading out
+        yield return new WaitForSeconds(3f); // adjust to match your Dead animation length
 
         while (currentHealth < maxHealth)
         {
