@@ -71,6 +71,13 @@ public class GhostMoveAndAttack : MonoBehaviour
     [Tooltip("Visual size of attack/poison effect.")]
     [Range(0.01f, 2f)] public float attackEffectScale = 0.05f;
 
+    [Header("🔥 Fire Ghost Knockback")]
+    [Tooltip("Force applied to the player when hit by a Fire ghost.")]
+    public float fireKnockbackForce = 2f;
+
+    [Tooltip("How long the knockback lasts (seconds).")]
+    public float fireKnockbackDuration = 0.2f;
+
     [Header("☠️ Poison Ghost Settings")]
     [Tooltip("Damage per tick while near the player.")]
     public float poisonDamagePerSecond = 0.2f;
@@ -243,6 +250,11 @@ public class GhostMoveAndAttack : MonoBehaviour
                 {
                     StopCoroutine(poisonCoroutine);
                     poisonCoroutine = null;
+
+                    // Immediately clean up any lingering poison visuals
+                    var existingEffect = transform.Find(attackEffectPrefab.name + "(Clone)");
+                    if (existingEffect != null)
+                        Destroy(existingEffect.gameObject);
                 }
                 break;
         }
@@ -251,6 +263,12 @@ public class GhostMoveAndAttack : MonoBehaviour
     private void AttackPlayerAtPlayer()
     {
         playerHealth.TakeDamage(attackDamage);
+
+        // --- Fire Ghost Knockback ---
+        if (ghostKind == GhostKind.Fire && target != null)
+        {
+            StartCoroutine(ApplyFireKnockback());
+        }
 
         // --- Ice Ghost Special Slow Effect --- //
         if (ghostKind == GhostKind.Ice && target != null)
@@ -264,6 +282,26 @@ public class GhostMoveAndAttack : MonoBehaviour
             GameObject effect = Instantiate(attackEffectPrefab, target.position, Quaternion.identity);
             ScaleEffect(effect, attackEffectScale);
             Destroy(effect, 2f);
+        }
+    }
+
+    private IEnumerator ApplyFireKnockback()
+    {
+        // Require CharacterController on player
+        var controller = target.GetComponent<CharacterController>();
+        if (controller == null) yield break;
+
+        Vector3 knockDir = (target.position - transform.position).normalized;
+        knockDir.y = 0f; // keep horizontal only
+
+        float elapsed = 0f;
+
+        while (elapsed < fireKnockbackDuration)
+        {
+            // Apply small movement respecting collisions
+            controller.Move(knockDir * fireKnockbackForce * Time.deltaTime);
+            elapsed += Time.deltaTime;
+            yield return null;
         }
     }
 
@@ -323,19 +361,34 @@ public class GhostMoveAndAttack : MonoBehaviour
             ScaleEffect(poisonEffect, attackEffectScale);
         }
 
+        // Continue as long as ghost and player are alive and in range
         while (true)
         {
             if (playerHealth == null || ghostHealth == null || ghostHealth.IsDead)
                 break;
 
             float distance = Vector3.Distance(transform.position, target.position);
+
+            // Stop immediately if no longer close enough
             if (distance > stopDistance)
                 break;
 
+            // Apply poison damage instantly each interval while in range
             playerHealth.TakeDamage(poisonDamagePerSecond);
-            yield return new WaitForSeconds(poisonCheckInterval);
+
+            // Wait a short time before next tick, but exit instantly if pushed away
+            float elapsed = 0f;
+            while (elapsed < poisonCheckInterval)
+            {
+                if (Vector3.Distance(transform.position, target.position) > stopDistance)
+                    goto ExitPoison; // break out immediately if ghost is pushed away
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
         }
 
+    ExitPoison:
         if (poisonEffect != null)
             Destroy(poisonEffect);
 

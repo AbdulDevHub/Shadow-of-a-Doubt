@@ -157,7 +157,7 @@ public class PlayerPotionHandler : MonoBehaviour
 
         if (healthLockImage != null) healthLockImage.SetActive(true);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(10f);
 
         playerHealth.isHealthLocked = false;
         if (healthLockImage != null) healthLockImage.SetActive(false);

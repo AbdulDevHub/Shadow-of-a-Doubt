@@ -84,9 +84,12 @@ public class WandShooter : MonoBehaviour
 
     private void HandleWandSwitching()
     {
-        if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectWand(0);
-        if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectWand(1);
-        if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectWand(2);
+        // Cycle through wands when pressing Q
+        if (Keyboard.current.qKey.wasPressedThisFrame)
+        {
+            int nextIndex = (currentIndex + 1) % wands.Length;
+            SelectWand(nextIndex);
+        }
     }
 
     private void SelectWand(int index)
@@ -110,12 +113,20 @@ public class WandShooter : MonoBehaviour
     {
         while (isFiring)
         {
-            if (!isManaLocked && currentMana >= 1f) // <-- check lock here
+            // Allow shooting if you have at least 1 mana
+            if (currentMana >= 1f)
             {
                 Shoot();
-                currentMana -= 1f;
+
+                // Only consume mana if not locked by Ultimate Mana Potion
+                if (!isManaLocked)
+                {
+                    currentMana -= 1f;
+                }
+
                 lastShotTime = Time.time;
 
+                // Stop any ongoing recharge while firing
                 if (rechargeCoroutine != null)
                 {
                     StopCoroutine(rechargeCoroutine);
@@ -123,14 +134,20 @@ public class WandShooter : MonoBehaviour
                 }
             }
 
+            // If mana is low and not locked, start slow recharge while holding
             if ((!isManaLocked && currentMana < 1f) && rechargeCoroutine == null)
+            {
                 rechargeCoroutine = StartCoroutine(HoldRecharge());
+            }
 
             yield return new WaitForSeconds(rapidFireRate);
         }
 
+        // After releasing fire, start fast recharge after delay (if not locked)
         if (rechargeCoroutine == null && !isManaLocked)
+        {
             rechargeCoroutine = StartCoroutine(FastRechargeAfterDelay());
+        }
     }
 
     private IEnumerator HoldRecharge()
@@ -174,7 +191,7 @@ public class WandShooter : MonoBehaviour
 
             // Spell type based on wand index
             ElementType spellType = (ElementType)currentIndex; // 0=Fire, 1=Water, 2=Wind
-            
+
             if (ghost != null)
             {
                 SpawnSpell(hit.point, Quaternion.identity);
@@ -188,11 +205,16 @@ public class WandShooter : MonoBehaviour
             if (witch != null)
             {
                 SpawnSpell(hit.point, Quaternion.identity);
-
-                // 🔹 Pass spell index so WitchHealth can check shield itself
                 witch.TakeDamage(1f, currentIndex);
-
                 return;
+            }
+
+            // ✅ NEW: Apply physics force to movable objects
+            Rigidbody rb = hit.collider.attachedRigidbody;
+            if (rb != null)
+            {
+                float pushForce = 5f; // You can tweak this
+                rb.AddForce(ray.direction * pushForce, ForceMode.Impulse);
             }
 
             // If no health component, just spawn spell at hit point

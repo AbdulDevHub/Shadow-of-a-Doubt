@@ -14,6 +14,7 @@ public class WitchAttackController : MonoBehaviour
     [Header("Ghost Spawning")]
     public GhostSpawnerMaster ghostSpawner;        // Assign in Inspector
     public GameObject ghostSummonEffectPrefab;     // Visual cue for ghost summon
+    private const int MaxGhostsAllowed = 6;        // 👻 Max allowed ghosts on field
 
     [Header("Crystal Attack Settings")]
     public Transform redCircleParent;              // Parent containing all red circle objects
@@ -21,6 +22,8 @@ public class WitchAttackController : MonoBehaviour
     public float crystalDelay = 2f;                // Time between circle and crystal
     public int minCrystalsPerAttack = 2;           // Minimum number of crystals per attack
     public int maxCrystalsPerAttack = 5;           // Maximum number of crystals per attack
+    public float crystalPushbackForce = 0.25f;
+    public float crystalPushbackDuration = 0.2f;
 
     private GameObject[] redCircles;               // Array of all red circle gameObjects
 
@@ -127,7 +130,6 @@ public class WitchAttackController : MonoBehaviour
 
         while (canAttack)
         {
-            // If teleporting, just wait and retry
             if (isTeleporting)
             {
                 yield return null;
@@ -156,8 +158,35 @@ public class WitchAttackController : MonoBehaviour
         }
     }
 
+    // -------------------------------
+    // 🔮 GHOST SUMMON WITH SMART LIMIT
+    // -------------------------------
     private IEnumerator PerformGhostSummon()
     {
+        // --- Check ghost count before summoning ---
+        GameObject[] existingGhosts = GameObject.FindGameObjectsWithTag("Ghost");
+        if (existingGhosts != null && existingGhosts.Length >= MaxGhostsAllowed)
+        {
+            Debug.Log($"👻 Witch skipped ghost summon — too many ghosts already ({existingGhosts.Length}).");
+
+            // Perform alternate attack instead
+            int altAttack = Random.Range(0, 2); // 0 = Shield, 1 = Crystal
+
+            if (altAttack == 0 && shield != null)
+            {
+                Debug.Log("🛡️ Witch uses shield instead of summoning ghosts!");
+                shield.ActivateShield();
+            }
+            else
+            {
+                Debug.Log("💎 Witch uses crystal attack instead of summoning ghosts!");
+                yield return StartCoroutine(PerformCrystalAttack());
+            }
+
+            yield break;
+        }
+
+        // --- Summon visual effect ---
         if (ghostSummonEffectPrefab != null)
         {
             GameObject effect = Instantiate(
@@ -173,12 +202,16 @@ public class WitchAttackController : MonoBehaviour
             yield return new WaitForSeconds(effectDuration);
         }
 
+        // --- Actually spawn ghosts ---
         if (ghostSpawner != null && ghostSpawner.waves.Count > 0)
         {
             StartCoroutine(ghostSpawner.SpawnWave(ghostSpawner.waves[0]));
         }
     }
 
+    // -------------------------------
+    // 💎 CRYSTAL ATTACK
+    // -------------------------------
     private IEnumerator PerformCrystalAttack()
     {
         if (redCircles == null || redCircles.Length == 0) yield break;
@@ -199,13 +232,12 @@ public class WitchAttackController : MonoBehaviour
     private IEnumerator SpawnCrystalDelayed(GameObject circle)
     {
         yield return new WaitForSeconds(crystalDelay);
-
         if (circle == null) yield break;
 
-        // --- DAMAGE CHECK BEFORE CRYSTAL SPAWNS ---
+        // --- DAMAGE + PUSHBACK CHECK ---
         if (player != null)
         {
-            float circleRadius = 1.5f; // Adjust to match red circle size
+            float circleRadius = 1.5f;
             float dist = Vector3.Distance(player.position, circle.transform.position);
 
             if (dist <= circleRadius)
@@ -213,12 +245,19 @@ public class WitchAttackController : MonoBehaviour
                 PlayerHealth ph = player.GetComponent<PlayerHealth>();
                 if (ph != null)
                 {
-                    ph.TakeDamage(5f); // 💥 Deal 5 damage
+                    ph.TakeDamage(5f);
                     Debug.Log("Player took 5 damage from crystal attack!");
+                }
+
+                CharacterController controller = player.GetComponent<CharacterController>();
+                if (controller != null)
+                {
+                    Vector3 knockDir = (player.position - circle.transform.position).normalized;
+                    knockDir.y = 0f;
+                    StartCoroutine(ApplyCrystalPushback(controller, knockDir));
                 }
             }
         }
-        // --- END DAMAGE CHECK ---
 
         circle.SetActive(false);
 
@@ -232,7 +271,6 @@ public class WitchAttackController : MonoBehaviour
     private IEnumerator FlashCircle(GameObject circle, float flashSpeed)
     {
         if (circle == null) yield break;
-
         Renderer rend = circle.GetComponent<Renderer>();
         if (rend == null) yield break;
 
@@ -245,6 +283,9 @@ public class WitchAttackController : MonoBehaviour
         rend.enabled = true;
     }
 
+    // -------------------------------
+    // ✨ TELEPORTATION
+    // -------------------------------
     private IEnumerator TeleportRoutine(int targetIndex)
     {
         isTeleporting = true;
@@ -264,7 +305,24 @@ public class WitchAttackController : MonoBehaviour
 
         transform.position = toPos;
         currentTeleportIndex = targetIndex;
-
         isTeleporting = false;
+    }
+
+    // -------------------------------
+    // 💥 PLAYER PUSHBACK
+    // -------------------------------
+    private IEnumerator ApplyCrystalPushback(CharacterController controller, Vector3 direction)
+    {
+        if (controller == null) yield break;
+
+        float elapsed = 0f;
+
+        while (elapsed < crystalPushbackDuration)
+        {
+            // Push player smoothly, respecting environment colliders
+            controller.Move(direction * crystalPushbackForce * Time.deltaTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 }

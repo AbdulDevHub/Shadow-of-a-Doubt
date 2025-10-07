@@ -574,10 +574,12 @@ public class TutorialSceneStandalone : MonoBehaviour
         }
 
         yield return new WaitUntil(() =>
-            (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) ||
+            (Keyboard.current != null && (
+                (Keyboard.current.enterKey != null && Keyboard.current.enterKey.wasPressedThisFrame) ||
+                (Keyboard.current.numpadEnterKey != null && Keyboard.current.numpadEnterKey.wasPressedThisFrame)
+            )) ||
             (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         );
-
         if (dialogueUI != null) dialogueUI.SetActive(false);
         allowShooting = prevShoot;
     }

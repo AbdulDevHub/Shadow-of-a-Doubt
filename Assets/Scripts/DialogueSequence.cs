@@ -154,7 +154,9 @@ public class DialogueSequence : MonoBehaviour
     // Helper method for input detection
     bool SkipPressed()
     {
-        return (Keyboard.current != null && Keyboard.current.spaceKey.isPressed) ||
-               (Mouse.current != null && Mouse.current.leftButton.isPressed);
+        return (Keyboard.current != null && 
+            ((Keyboard.current.enterKey != null && Keyboard.current.enterKey.isPressed) ||
+                (Keyboard.current.numpadEnterKey != null && Keyboard.current.numpadEnterKey.isPressed))) ||
+            (Mouse.current != null && Mouse.current.leftButton.isPressed);
     }
 }
