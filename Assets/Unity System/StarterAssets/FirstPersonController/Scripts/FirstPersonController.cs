@@ -154,10 +154,11 @@ namespace StarterAssets
 			ApplyCatSway();
 		}
 
+		// ----- change ApplyCatSway to use GetMoveInput() instead of _input.move -----
 		private void ApplyCatSway()
 		{
-			Vector2 moveInput = _input.move;
-			float speedFactor = _speed / MoveSpeed;
+			Vector2 moveInput = GetMoveInput(); // <- updated here
+			float speedFactor = _speed / Mathf.Max(MoveSpeed, 0.0001f);
 
 			if (moveInput.sqrMagnitude > 0.01f)
 			{
@@ -200,6 +201,7 @@ namespace StarterAssets
 			}
 		}
 
+
 		private void GroundedCheck()
 		{
 			// set sphere position, with offset
@@ -222,34 +224,75 @@ namespace StarterAssets
 			}
 		}
 
+		// ----- replace your Move() method with this updated version -----
 		private void Move()
 		{
-			// 🐾 Crouch-aware movement speed
+			// read the current move input robustly
+			Vector2 moveInput = GetMoveInput();
+
+			// 🐾 Determine target speed based on state
 			float targetSpeed = _isCrouching ? CrouchSpeed : (_input.sprint ? SprintSpeed : MoveSpeed);
-			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
+			if (moveInput == Vector2.zero) targetSpeed = 0.0f;
 
-			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
-			float speedOffset = 0.1f;
-			float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+			// Smooth speed transition (honors analogMovement)
+			float inputMagnitude = _input.analogMovement ? moveInput.magnitude : (moveInput == Vector2.zero ? 0f : 1f);
+			_speed = Mathf.Lerp(_speed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+			_speed = Mathf.Round(_speed * 1000f) / 1000f;
 
-			if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+			// Compute direction from current transform and current input (always recalculated)
+			Vector3 inputDirection = new Vector3(moveInput.x, 0.0f, moveInput.y);
+			Vector3 moveDirection = (transform.right * inputDirection.x) + (transform.forward * inputDirection.z);
+
+			// Apply movement (normalized so diagonals aren't faster)
+			if (moveInput != Vector2.zero)
 			{
-				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
-				_speed = Mathf.Round(_speed * 1000f) / 1000f;
+				_controller.Move(moveDirection.normalized * (_speed * Time.deltaTime)
+					+ Vector3.up * _verticalVelocity * Time.deltaTime);
 			}
 			else
 			{
-				_speed = targetSpeed;
+				// only vertical movement if no horizontal input
+				_controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
 			}
+		}
 
-			Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
-			if (_input.move != Vector2.zero)
+		// ----- add this helper anywhere inside the class -----
+		private Vector2 GetMoveInput()
+		{
+		#if ENABLE_INPUT_SYSTEM
+			// prefer the StarterAssets input vector, but if keyboard keys are pressed read them directly
+			Vector2 inMove = _input.move;
+
+			var kb = UnityEngine.InputSystem.Keyboard.current;
+			if (kb != null)
 			{
-				inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
+				bool w = kb.wKey.isPressed;
+				bool s = kb.sKey.isPressed;
+				bool a = kb.aKey.isPressed;
+				bool d = kb.dKey.isPressed;
+
+				// if any WASD key is pressed, compose from those keys (guarantees exact combination)
+				if (w || s || a || d)
+				{
+					Vector2 kbVec = Vector2.zero;
+					if (w) kbVec.y += 1f;
+					if (s) kbVec.y -= 1f;
+					if (a) kbVec.x -= 1f;
+					if (d) kbVec.x += 1f;
+
+					return kbVec == Vector2.zero ? Vector2.zero : kbVec.normalized;
+				}
 			}
 
-			_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime)
-				+ new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+			// otherwise return whatever the StarterAssets input has (gamepad, remapped keys, etc.)
+			return inMove;
+		#else
+			// legacy Input Manager fallback (if not using the new input system)
+			float h = Input.GetAxisRaw("Horizontal");
+			float v = Input.GetAxisRaw("Vertical");
+			Vector2 legacy = new Vector2(h, v);
+			return legacy == Vector2.zero ? _input.move : (legacy.normalized);
+		#endif
 		}
 
 		private void JumpAndGravity()
@@ -257,31 +300,48 @@ namespace StarterAssets
 			if (Grounded)
 			{
 				_fallTimeoutDelta = FallTimeout;
-				if (_verticalVelocity < 0.0f)
+
+				// ✅ Always reset vertical velocity when grounded (prevents boosted jumps)
+				if (_verticalVelocity < 0.0f || Mathf.Abs(_verticalVelocity) < 0.5f)
 					_verticalVelocity = -2f;
 
+				// Jump
 				if (_input.jump && _jumpTimeoutDelta <= 0.0f && !_isCrouching)
 				{
+					// Calculate the jump velocity needed for the desired height
 					_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 				}
 
+				// Reset jump timeout
 				if (_jumpTimeoutDelta >= 0.0f)
 					_jumpTimeoutDelta -= Time.deltaTime;
 			}
 			else
 			{
+				// Reset the jump timeout timer
 				_jumpTimeoutDelta = JumpTimeout;
+
+				// Apply fall timeout (used for step-down smoothing)
 				if (_fallTimeoutDelta >= 0.0f)
 					_fallTimeoutDelta -= Time.deltaTime;
+
+				// Disable jump input while in the air
 				_input.jump = false;
 			}
 
+			// Apply gravity when not grounded
 			if (_verticalVelocity < _terminalVelocity)
 			{
 				_verticalVelocity += Gravity * Time.deltaTime;
 			}
-		}
 
+			// ✅ Ceiling collision protection (prevents getting stuck)
+			if ((_controller.collisionFlags & CollisionFlags.Above) != 0 && _verticalVelocity > 0f)
+			{
+				_verticalVelocity = 0f;
+			}
+		}
+		
 		// 🐱 CROUCH LOGIC
 		private void HandleCrouch()
 		{
