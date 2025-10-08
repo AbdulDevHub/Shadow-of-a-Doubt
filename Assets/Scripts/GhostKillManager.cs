@@ -23,6 +23,8 @@ public class GhostKillManager : MonoBehaviour
     [Header("Start Fade Options")]
     [Tooltip("If true, scene will start black and fade into gameplay.")]
     public bool fadeInOnStart = true;
+    [Tooltip("Check if DialogueSequence is handling the initial fade (recommended).")]
+    public bool dialogueHandlesFade = true;
 
     private void Awake()
     {
@@ -32,23 +34,14 @@ public class GhostKillManager : MonoBehaviour
 
     private void Start()
     {
-        if (fadePanel != null)
+        // Only handle initial fade if DialogueSequence isn't doing it
+        if (!dialogueHandlesFade && fadePanel != null && fadeInOnStart)
         {
-            if (fadeInOnStart)
-            {
-                // Start black, then fade in
-                Color c = fadePanel.color;
-                c.a = 1f;
-                fadePanel.color = c;
-                StartCoroutine(FadePanel(1f, 0f, fadeDuration, null));
-            }
-            else
-            {
-                // Start transparent
-                Color c = fadePanel.color;
-                c.a = 0f;
-                fadePanel.color = c;
-            }
+            // Start black, then fade in
+            Color c = fadePanel.color;
+            c.a = 1f;
+            fadePanel.color = c;
+            StartCoroutine(FadePanel(1f, 0f, fadeDuration, null));
         }
     }
 

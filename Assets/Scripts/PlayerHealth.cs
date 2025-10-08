@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
-using UnityEngine.InputSystem; // ✅ Added for PlayerInput reference
+using UnityEngine.InputSystem;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -22,13 +22,15 @@ public class PlayerHealth : MonoBehaviour
     [Header("Fade Settings")]
     public float fadeDuration = 0.5f;
     [Range(0f, 1f)] public float targetAlpha = 0.7f;
+    [Tooltip("Check if DialogueSequence or another script handles the initial fade.")]
+    public bool otherScriptHandlesFade = true;
 
     private Coroutine fadeCoroutine;
     private bool isDead = false;
     public bool isHealthLocked = false;
 
     [Header("Gameplay References")]
-    public PlayerInput playerInput; // ✅ drag your PlayerInput here in Inspector
+    public PlayerInput playerInput;
 
     [Header("Buttons")]
     public Button respawnButton;
@@ -48,7 +50,8 @@ public class PlayerHealth : MonoBehaviour
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
 
-        if (fadePanel != null)
+        // Only initialize fade panel if no other script is handling it
+        if (!otherScriptHandlesFade && fadePanel != null)
         {
             SetImageAlpha(0f);
             fadePanel.gameObject.SetActive(false);
@@ -97,11 +100,10 @@ public class PlayerHealth : MonoBehaviour
         Debug.Log("Player has died!");
         ShowGameOverUI();
 
-        // Pause and disable input
         Time.timeScale = 0f;
 
         if (playerInput != null)
-            playerInput.enabled = false; // ✅ disable player input on death
+            playerInput.enabled = false;
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -166,11 +168,10 @@ public class PlayerHealth : MonoBehaviour
 
         HideGameOverUI();
 
-        // Resume game and re-enable input
         Time.timeScale = 1f;
 
         if (playerInput != null)
-            playerInput.enabled = true; // ✅ re-enable input on respawn
+            playerInput.enabled = true;
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
