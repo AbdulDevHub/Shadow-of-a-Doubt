@@ -563,25 +563,51 @@ public class TutorialSceneStandalone : MonoBehaviour
 
         if (dialogueUI != null) dialogueUI.SetActive(true);
         if (characterNameText != null) characterNameText.text = character;
+        
         if (dialogueText != null)
         {
             dialogueText.text = "";
-            foreach (char c in text)
+            int charIndex = 0;
+
+            // Typing effect with skip functionality
+            while (charIndex < text.Length)
             {
-                dialogueText.text += c;
+                // Check if player wants to skip typing
+                if (SkipPressed())
+                {
+                    // Show full text immediately
+                    dialogueText.text = text;
+                    
+                    // Wait until input is released before continuing
+                    yield return new WaitWhile(() => SkipPressed());
+                    break;
+                }
+
+                // Add next character
+                dialogueText.text += text[charIndex];
+                charIndex++;
+                
                 yield return new WaitForSeconds(0.03f);
             }
         }
 
-        yield return new WaitUntil(() =>
-            (Keyboard.current != null && (
-                (Keyboard.current.enterKey != null && Keyboard.current.enterKey.wasPressedThisFrame) ||
-                (Keyboard.current.numpadEnterKey != null && Keyboard.current.numpadEnterKey.wasPressedThisFrame)
-            )) ||
-            (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        );
+        // Wait for next click/press to continue to next dialogue
+        yield return new WaitUntil(() => SkipPressed());
+        
+        // Prevent holding down from skipping multiple dialogues
+        yield return new WaitWhile(() => SkipPressed());
+        
         if (dialogueUI != null) dialogueUI.SetActive(false);
         allowShooting = prevShoot;
+    }
+
+    // Add this helper method to TutorialSceneStandalone class:
+    private bool SkipPressed()
+    {
+        return (Keyboard.current != null && 
+            ((Keyboard.current.enterKey != null && Keyboard.current.enterKey.isPressed) ||
+            (Keyboard.current.numpadEnterKey != null && Keyboard.current.numpadEnterKey.isPressed))) ||
+            (Mouse.current != null && Mouse.current.leftButton.isPressed);
     }
 
     private IEnumerator Fade(float from, float to, float duration)
