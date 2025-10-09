@@ -23,12 +23,19 @@ public class WitchHealth : MonoBehaviour
     private bool canTakeDamage = false;
 
     [Header("Target Reference")]
-    [SerializeField] private Transform player; // 🔹 assign Player transform in Inspector
+    [SerializeField] private Transform player; // assign Player transform in Inspector
 
     private void Awake()
     {
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
+
+        // 🔹 Force the witch to start in "Witch_Wait" pose each scene
+        if (animator != null)
+        {
+            animator.ResetTrigger("Dead");
+            animator.Play("Witch_Wait", 0, 0f); // 0 = layer index, 0f = normalized time
+        }
 
         healthBar = GetComponentInChildren<Slider>(true);
         if (healthBar != null)
@@ -42,29 +49,24 @@ public class WitchHealth : MonoBehaviour
         }
 
         if (fadePanel != null)
-        {
             fadePanel.color = new Color(0, 0, 0, 0);
-        }
 
-        // 🔹 Auto-find player if not set
+        // Auto-find player if not set
         if (player == null && GameObject.FindGameObjectWithTag("Player") != null)
-        {
             player = GameObject.FindGameObjectWithTag("Player").transform;
-        }
     }
 
     private void Update()
     {
-        FacePlayer(); // 🔹 Always face the player
+        FacePlayer();
     }
 
-    // 🔹 Make witch face player
     private void FacePlayer()
     {
         if (player == null || isDead) return;
 
         Vector3 direction = player.position - transform.position;
-        direction.y = 0; // keep only horizontal rotation
+        direction.y = 0;
         if (direction.sqrMagnitude > 0.01f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
@@ -72,9 +74,6 @@ public class WitchHealth : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called externally by DialogueSequence after dialogue finishes.
-    /// </summary>
     public void EnableHealthBar()
     {
         if (healthBar != null)
@@ -89,23 +88,18 @@ public class WitchHealth : MonoBehaviour
 
         WitchShield shield = GetComponentInChildren<WitchShield>();
         if (shield != null && !shield.CanTakeDamage(spellIndex))
-        {
             return;
-        }
 
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
 
         UpdateHealthBar();
 
-        // Play Damage animation
         if (animator != null)
             animator.SetTrigger("Damage");
 
         if (currentHealth <= 0)
-        {
             StartCoroutine(DeathSequence());
-        }
     }
 
     private void UpdateHealthBar()
@@ -117,24 +111,40 @@ public class WitchHealth : MonoBehaviour
     private IEnumerator DeathSequence()
     {
         isDead = true;
+        canTakeDamage = false;
 
-        // 🔹 Play Dead animation
+        // Stop attacks
+        WitchAttackController attackController = GetComponent<WitchAttackController>();
+        if (attackController != null)
+            attackController.StopAttacks();
+
+        // Disable wand usage (no more combat)
+        WandShooter wandShooter = FindObjectOfType<WandShooter>();
+        if (wandShooter != null)
+            wandShooter.SetWandActive(false, true); // 🔒 permanently disable
+
+        // Play Dead animation
         if (animator != null)
             animator.SetTrigger("Dead");
 
+        // Wait for animation to finish (adjust to match animation length)
+        yield return new WaitForSeconds(3f);
+
+        // 🔹 Run outro dialogue
+        DialogueSequence dialogue = FindObjectOfType<DialogueSequence>();
+        if (dialogue != null)
+        {
+            yield return dialogue.PlayOutroDialogue();
+        }
+
+        // 🔹 After dialogue ends: ghost icon inactive, health bar red + recharge
         if (ghostIcon != null)
             ghostIcon.gameObject.SetActive(false);
 
         if (healthFill != null)
             healthFill.color = Color.red;
 
-        WitchAttackController attackController = GetComponent<WitchAttackController>();
-        if (attackController != null)
-            attackController.StopAttacks();
-
-        // Wait for the animation to finish before fading out
-        yield return new WaitForSeconds(3f); // adjust to match your Dead animation length
-
+        // Recharge slowly (visual effect)
         while (currentHealth < maxHealth)
         {
             currentHealth += Time.deltaTime * rechargeSpeed * maxHealth;
@@ -143,6 +153,7 @@ public class WitchHealth : MonoBehaviour
             yield return null;
         }
 
+        // 🔹 Fade out and go to ending scene
         if (fadePanel != null)
             yield return StartCoroutine(FadeInPanel());
 

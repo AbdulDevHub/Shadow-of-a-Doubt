@@ -32,9 +32,12 @@ public class DialogueSequence : MonoBehaviour
     public float titleFadeDuration = 2f; // Fade in/out duration
     public float titleDisplayDuration = 2f; // How long to stay visible
 
-    [Header("Dialogue Data")]
+    [Header("Into Dialogue (Before Level Starts)")]
     public List<DialogueLine> dialogueLines = new List<DialogueLine>();
     public float typingSpeed = 0.03f; // Typing delay per character
+
+    [Header("Outro Dialogue (After Level Ends)")]
+    public List<DialogueLine> outroDialogueLines = new List<DialogueLine>();
 
     [Header("Optional Combat UI")]
     public GameObject combatUI;
@@ -245,6 +248,56 @@ public class DialogueSequence : MonoBehaviour
             // Prevent holding down from skipping multiple lines
             yield return new WaitWhile(SkipPressed);
         }
+    }
+
+    public IEnumerator PlayOutroDialogue()
+    {
+        if (outroDialogueLines == null || outroDialogueLines.Count == 0)
+            yield break;
+
+        // Hide combat UI
+        if (combatUI != null)
+            combatUI.SetActive(false);
+
+        // Show dialogue UI
+        dialogueUI.SetActive(true);
+
+        // Run outro dialogue
+        foreach (var line in outroDialogueLines)
+        {
+            characterIconImage.sprite = line.characterIcon;
+            characterNameText.text = line.characterName;
+
+            if (line.useTypingEffect)
+            {
+                dialogueText.text = "";
+                int charIndex = 0;
+
+                while (charIndex < line.dialogueText.Length)
+                {
+                    if (SkipPressed())
+                    {
+                        dialogueText.text = line.dialogueText;
+                        yield return new WaitWhile(SkipPressed);
+                        break;
+                    }
+
+                    dialogueText.text += line.dialogueText[charIndex];
+                    charIndex++;
+                    yield return new WaitForSeconds(typingSpeed);
+                }
+            }
+            else
+            {
+                dialogueText.text = line.dialogueText;
+            }
+
+            yield return new WaitUntil(SkipPressed);
+            yield return new WaitWhile(SkipPressed);
+        }
+
+        // Hide dialogue UI before fade
+        dialogueUI.SetActive(false);
     }
 
     // Helper method for input detection

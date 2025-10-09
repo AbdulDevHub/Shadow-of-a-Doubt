@@ -48,6 +48,7 @@ public class WandShooter : MonoBehaviour
     [Header("Combat UI Control")]
     public GameObject combatUI; // Assign the combat UI used in the scene
     private bool canUseWand = false; // Only true when combat UI is visible
+    private bool permanentlyDisabled = false;
 
     private void Awake()
     {
@@ -69,13 +70,16 @@ public class WandShooter : MonoBehaviour
 
     private void Update()
     {
+        if (permanentlyDisabled)
+            return; // 🟩 fully skip everything if disabled forever
+
         if (!canUseWand)
         {
             // Check if combat UI became visible in hierarchy
             if (combatUI != null && combatUI.activeInHierarchy)
                 canUseWand = true;
             else
-                return; // Skip input until UI visible
+                return;
         }
 
         HandleFiringInput();
@@ -133,6 +137,13 @@ public class WandShooter : MonoBehaviour
     {
         while (isFiring)
         {
+            // 🟩 Stop instantly if wand is disabled
+            if (!canUseWand)
+            {
+                isFiring = false;
+                yield break;
+            }
+
             // Allow shooting if you have at least 1 mana
             if (currentMana >= 1f)
             {
@@ -285,5 +296,21 @@ public class WandShooter : MonoBehaviour
     {
         currentMana = Mathf.Min(currentMana + amount, maxMana);
         UpdateManaBar();
+    }
+
+    // Called externally to enable/disable wand usage
+    public void SetWandActive(bool active, bool permanent = false)
+    {
+        canUseWand = active;
+
+        if (permanent)
+            permanentlyDisabled = !active;
+
+        if (!active)
+        {
+            isFiring = false;
+            StopAllCoroutines();
+            rechargeCoroutine = null;
+        }
     }
 }

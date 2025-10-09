@@ -48,17 +48,32 @@ public class GhostKillManager : MonoBehaviour
     public void RegisterKill()
     {
         currentKills++;
+
         if (currentKills >= requiredKills)
         {
-            // Fade out to black, then change scene
-            StartCoroutine(FadePanel(0f, 1f, fadeDuration, () =>
-            {
-                if (!string.IsNullOrEmpty(nextSceneName))
-                    SceneManager.LoadScene(nextSceneName);
-                else
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }));
+            StartCoroutine(HandleLevelComplete());
         }
+    }
+
+    private IEnumerator HandleLevelComplete()
+    {
+        // Optional: Disable combat UI so it doesn't overlap
+        DialogueSequence dialogue = FindObjectOfType<DialogueSequence>();
+
+        if (dialogue != null)
+        {
+            // 🔹 Tell DialogueSequence to play its outro
+            yield return dialogue.PlayOutroDialogue();
+        }
+
+        // 🔹 After dialogue finishes, fade out and change scene
+        yield return StartCoroutine(FadePanel(0f, 1f, fadeDuration, () =>
+        {
+            if (!string.IsNullOrEmpty(nextSceneName))
+                SceneManager.LoadScene(nextSceneName);
+            else
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }));
     }
 
     private IEnumerator FadePanel(float startAlpha, float endAlpha, float duration, System.Action onComplete)
