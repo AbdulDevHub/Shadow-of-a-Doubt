@@ -18,6 +18,11 @@ public class TutorialSceneStandalone : MonoBehaviour
     public Slider manaSlider;
     public TextMeshProUGUI interactText;
 
+    [Header("Title Sequence")]
+    public TMP_Text titleText;  // assign your title text GameObject (with CanvasGroup)
+    public float titleFadeDuration = 2f;
+    public float titleDisplayDuration = 2f;
+
     [Header("Camera & Shooting")]
     public Camera playerCamera;
     public float shootingRange = 100f;
@@ -399,13 +404,13 @@ public class TutorialSceneStandalone : MonoBehaviour
     #region Tutorial Sequence
     private IEnumerator RunTutorial()
     {
-        yield return StartCoroutine(Fade(1f, 0f, 2f));
+        yield return StartCoroutine(FadeTitleSequence());
 
         // Walking tutorial
         if (!string.IsNullOrEmpty(walkingTutorialDialogue))
             yield return StartCoroutine(ShowDialogue("Cat", walkingTutorialDialogue));
 
-        yield return StartCoroutine(WaitForMovement(2f));
+        // yield return StartCoroutine(WaitForMovement(2f));
 
         // Shooting tutorial
         if (!string.IsNullOrEmpty(shootingTutorialDialogue))
@@ -552,6 +557,65 @@ public class TutorialSceneStandalone : MonoBehaviour
     #endregion
 
     #region Dialogue & Fade
+    private IEnumerator FadeTitleSequence()
+    {
+        if (fadePanel == null || titleText == null)
+            yield break;
+
+        // Ensure both are active
+        fadePanel.gameObject.SetActive(true);
+        titleText.gameObject.SetActive(true);
+
+        // Start with fadePanel fully opaque black
+        Color panelColor = fadePanel.color;
+        panelColor.a = 1f;
+        fadePanel.color = panelColor;
+
+        // Start with text fully transparent
+        Color textColor = titleText.color;
+        textColor.a = 0f;
+        titleText.color = textColor;
+
+        // --- Fade text in ---
+        float t = 0f;
+        while (t < titleFadeDuration)
+        {
+            t += Time.deltaTime;
+            textColor.a = Mathf.Lerp(0f, 1f, t / titleFadeDuration);
+            titleText.color = textColor;
+            yield return null;
+        }
+        textColor.a = 1f;
+        titleText.color = textColor;
+
+        // --- Hold on screen ---
+        yield return new WaitForSeconds(titleDisplayDuration);
+
+        // --- Fade both text and panel out together ---
+        t = 0f;
+        while (t < titleFadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(1f, 0f, t / titleFadeDuration);
+
+            textColor.a = a;
+            titleText.color = textColor;
+
+            panelColor.a = a;
+            fadePanel.color = panelColor;
+
+            yield return null;
+        }
+
+        // Hide both
+        textColor.a = 0f;
+        titleText.color = textColor;
+        titleText.gameObject.SetActive(false);
+
+        panelColor.a = 0f;
+        fadePanel.color = panelColor;
+    }
+
     private IEnumerator ShowDialogue(string character, string text, bool hideCombatUI = true)
     {
         bool prevShoot = allowShooting;

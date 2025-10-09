@@ -27,6 +27,11 @@ public class DialogueSequence : MonoBehaviour
     public Image fadePanel;
     public float fadeDuration = 1f;
 
+    [Header("Title Sequence")]
+    public TMP_Text titleText;           // Assign your TMP_Text object in the inspector
+    public float titleFadeDuration = 2f; // Fade in/out duration
+    public float titleDisplayDuration = 2f; // How long to stay visible
+
     [Header("Dialogue Data")]
     public List<DialogueLine> dialogueLines = new List<DialogueLine>();
     public float typingSpeed = 0.03f; // Typing delay per character
@@ -78,8 +83,8 @@ public class DialogueSequence : MonoBehaviour
             witchAnimator.Play("Witch_Wait", 0, 0f);
         }
 
-        // Step 2: Fade in from black
-        yield return StartCoroutine(Fade(1, 0));
+        // Step 2: Fade in with title sequence
+        yield return StartCoroutine(FadeTitleSequence());
 
         // Step 3: Show dialogue
         dialogueUI.SetActive(true);
@@ -142,6 +147,60 @@ public class DialogueSequence : MonoBehaviour
             yield return null;
         }
         fadePanel.color = new Color(0, 0, 0, to);
+    }
+
+    private IEnumerator FadeTitleSequence()
+    {
+        if (fadePanel == null || titleText == null)
+            yield break;
+
+        fadePanel.gameObject.SetActive(true);
+        titleText.gameObject.SetActive(true);
+
+        // Start fully black
+        Color panelColor = fadePanel.color;
+        panelColor.a = 1f;
+        fadePanel.color = panelColor;
+
+        // Start with text invisible
+        Color textColor = titleText.color;
+        textColor.a = 0f;
+        titleText.color = textColor;
+
+        // --- Fade text in ---
+        float t = 0f;
+        while (t < titleFadeDuration)
+        {
+            t += Time.deltaTime;
+            textColor.a = Mathf.Lerp(0f, 1f, t / titleFadeDuration);
+            titleText.color = textColor;
+            yield return null;
+        }
+        textColor.a = 1f;
+        titleText.color = textColor;
+
+        // --- Hold for display ---
+        yield return new WaitForSeconds(titleDisplayDuration);
+
+        // --- Fade both out ---
+        t = 0f;
+        while (t < titleFadeDuration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(1f, 0f, t / titleFadeDuration);
+            textColor.a = a;
+            titleText.color = textColor;
+            panelColor.a = a;
+            fadePanel.color = panelColor;
+            yield return null;
+        }
+
+        // Hide them
+        textColor.a = 0f;
+        titleText.color = textColor;
+        titleText.gameObject.SetActive(false);
+        panelColor.a = 0f;
+        fadePanel.color = panelColor;
     }
 
     IEnumerator RunDialogue()
