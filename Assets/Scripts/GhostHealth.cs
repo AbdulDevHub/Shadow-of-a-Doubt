@@ -172,13 +172,14 @@ public class GhostHealth : MonoBehaviour
     {
         if (defaultSmokeEffect != null)
         {
-            GameObject spawnedFx = Instantiate(defaultSmokeEffect, transform.position, defaultSmokeEffect.transform.rotation);
-            spawnedFx.transform.localScale = Vector3.one * defaultSmokeEffect.transform.localScale.x;
+            Instantiate(defaultSmokeEffect, transform.position, defaultSmokeEffect.transform.rotation);
         }
 
-        GhostKillManager.Instance?.RegisterKill();
-        TryDropPotion();
+        // Only report kills if a manager actually exists in this scene
+        if (GhostKillManager.Instance != null && GhostKillManager.Instance.gameObject != null)
+            GhostKillManager.Instance.RegisterKill();
 
+        TryDropPotion();
         onGhostDied?.Invoke(this);
         Destroy(gameObject);
     }
