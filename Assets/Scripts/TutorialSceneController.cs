@@ -94,7 +94,7 @@ public class TutorialSceneStandalone : MonoBehaviour
     private float ghostCurrentHealth;
     private Slider ghostHealthBar;
     private float ghostLastAttackTime = -999f;
-    private Coroutine ghostAttackCoroutine = null;
+    // private Coroutine ghostAttackCoroutine = null;
 
     // Burn system
     private Coroutine burnCoroutine;
