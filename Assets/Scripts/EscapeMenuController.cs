@@ -60,6 +60,9 @@ public class EscapeMenuController : MonoBehaviour
 
     void OpenMenu()
     {
+        // gameTimer = FindObjectOfType<Timer>();
+        // gameTimer.StopTimer();
+
         isMenuOpen = true;
         escapeMenuUI.SetActive(true);
         fadePanel.gameObject.SetActive(true);
@@ -78,6 +81,9 @@ public class EscapeMenuController : MonoBehaviour
 
     void CloseMenu()
     {
+        // gameTimer = FindObjectOfType<Timer>();
+        // gameTimer.StopTimer();        
+
         isMenuOpen = false;
         Time.timeScale = 1f;
         if (playerInput != null)

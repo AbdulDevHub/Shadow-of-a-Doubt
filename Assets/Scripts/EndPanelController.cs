@@ -7,8 +7,12 @@ public class EndPanelController : MonoBehaviour
 {
     [Header("UI References")]
     public TMP_Text scoreText;
+    public TMP_Text timerText;
+
     public Button quitButton;
     public Button playAgainButton;
+    public ScoreManager scoreManager;
+    public GameTimer timer;
 
     void Start()
     {
@@ -17,12 +21,34 @@ public class EndPanelController : MonoBehaviour
         playAgainButton.onClick.AddListener(PlayAgain);
     }
 
-    public void SetScore(int score)
+    public void SetScore()
     {
-        if (scoreText != null)
+
+        if (scoreManager == null)
+            scoreManager = FindObjectOfType<ScoreManager>();
+
+       if (timer == null)
+            timer = FindObjectOfType<GameTimer>();
+
+        if (scoreManager == null)
+            Debug.LogError("EndPanelController: scoreManager is NULL!");
+        if (scoreText == null)
+            Debug.LogError("EndPanelController: scoreText is NULL!");
+
+        if (scoreText != null && scoreManager != null)
         {
-            scoreText.text = "Your Score: " + score;
+            scoreText.text = "Your Score: " + this.scoreManager.GetScore();
         }
+
+        if (timerText != null && timer != null)
+        {
+            Debug.Log("entered the text");
+            timerText.text = "Your Time: " + this.timer.GetTime();
+        }
+
+        this.timer.ResetTimer();
+        this.scoreManager.SetScore(0);
+
     }
 
     void QuitGame()

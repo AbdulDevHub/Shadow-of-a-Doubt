@@ -48,6 +48,10 @@ public class GhostKillManager : MonoBehaviour
     public void RegisterKill()
     {
         currentKills++;
+
+        AddScoreForKill();
+
+
         if (currentKills >= requiredKills)
         {
             // Fade out to black, then change scene
@@ -58,6 +62,22 @@ public class GhostKillManager : MonoBehaviour
                 else
                     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }));
+        }
+    }
+
+    private void AddScoreForKill()
+    {
+        // Try to find the ScoreManager in the scene
+        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+
+        if (scoreManager != null)
+        {
+            scoreManager.AddScore(10);
+            Debug.Log("Added 10 points! Total Score: " + scoreManager.GetScore());
+        }
+        else
+        {
+            Debug.LogWarning("ScoreManager not found — no score added.");
         }
     }
 
