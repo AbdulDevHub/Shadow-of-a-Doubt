@@ -234,7 +234,11 @@ public class TutorialSceneStandalone : MonoBehaviour
         playerHealthComponent.TakeDamage(ghostAttackDamage);
 
         SetFrozenOverlay(true, resetAlpha: true);
-        StartCoroutine(RemoveFrozenOverlayAfterDelay());
+        if (removeFrozenCoroutine != null)
+        {
+            StopCoroutine(removeFrozenCoroutine);
+        }
+        removeFrozenCoroutine = StartCoroutine(RemoveFrozenOverlayAfterDelay());
 
         // ✅ Prevent health from dropping below 30% of max health
         float minHealth = playerHealthComponent.maxHealth * 0.3f;

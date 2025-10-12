@@ -46,6 +46,9 @@ public class EndPanelController : MonoBehaviour
 
         scoreManager = ScoreManager.Instance;
 
+        // ✅ Stop the live timer so it doesn't overwrite the TMP
+        scoreManager.StopTimer();
+
         // Ensure latest results are captured
         scoreManager.SaveCurrentLevelResults();
 
@@ -68,8 +71,19 @@ public class EndPanelController : MonoBehaviour
         // Totals with context
         if (totalScoreText != null)
             totalScoreText.text = $"Total Score: {scoreManager.GetTotalScore()}";
+
         if (totalTimeText != null)
-            totalTimeText.text = $"Total Time: {scoreManager.GetTotalTimeFormatted()}";
+        {
+            float totalSeconds =
+                scoreManager.Level1TimeSeconds +
+                scoreManager.Level2TimeSeconds +
+                scoreManager.BossTimeSeconds;
+
+            int minutes = Mathf.FloorToInt(totalSeconds / 60f);
+            int seconds = Mathf.FloorToInt(totalSeconds % 60f);
+
+            totalTimeText.text = $"Total Time: {minutes:00}:{seconds:00}";
+        }
     }
 
     void QuitGame()

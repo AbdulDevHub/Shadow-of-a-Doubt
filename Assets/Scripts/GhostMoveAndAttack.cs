@@ -287,6 +287,7 @@ public class GhostMoveAndAttack : MonoBehaviour
         {
             case GhostKind.Fire: clip = fireAttackSound; break;
             case GhostKind.Ice: clip = iceAttackSound; break;
+            case GhostKind.Poison: clip = poisonAttackSound; break;
         }
 
         if (clip != null)
@@ -328,23 +329,14 @@ public class GhostMoveAndAttack : MonoBehaviour
     {
         GameObject poisonEffect = null;
 
+        // ✅ Play poison sound once when starting poison damage
+        if (poisonAttackSound != null)
+            AudioSource.PlayClipAtPoint(poisonAttackSound, transform.position);
+
         if (attackEffectPrefab != null)
         {
             poisonEffect = Instantiate(attackEffectPrefab, transform.position, Quaternion.identity, transform);
             ScaleEffect(poisonEffect, attackEffectScale);
-        }
-
-        AudioSource poisonSoundSource = null;
-        if (poisonAttackSound != null)
-        {
-            // Create a temporary AudioSource for looping
-            GameObject soundObj = new GameObject("PoisonSound");
-            soundObj.transform.position = transform.position;
-            poisonSoundSource = soundObj.AddComponent<AudioSource>();
-            poisonSoundSource.clip = poisonAttackSound;
-            poisonSoundSource.loop = true;
-            poisonSoundSource.spatialBlend = 1f; // optional 3D sound
-            poisonSoundSource.Play();
         }
 
         // Attack loop
@@ -377,12 +369,6 @@ public class GhostMoveAndAttack : MonoBehaviour
     ExitPoison:
         if (poisonEffect != null)
             Destroy(poisonEffect);
-
-        if (poisonSoundSource != null)
-        {
-            poisonSoundSource.Stop();
-            Destroy(poisonSoundSource.gameObject);
-        }
 
         poisonCoroutine = null;
     }
