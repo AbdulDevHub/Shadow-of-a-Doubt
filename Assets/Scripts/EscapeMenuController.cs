@@ -74,6 +74,10 @@ public class EscapeMenuController : MonoBehaviour
 
         if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
         fadeCoroutine = StartCoroutine(FadeImage(fadePanel, fadePanel.color.a, targetAlpha));
+
+        // ✅ Pause timer when menu opens
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.StopTimer();
     }
 
     void CloseMenu()
@@ -89,6 +93,10 @@ public class EscapeMenuController : MonoBehaviour
 
         if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
         fadeCoroutine = StartCoroutine(FadeOutAndDisable());
+
+        // ✅ Resume timer when menu closes
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.ResumeTimer();
     }
 
     IEnumerator FadeOutAndDisable()
@@ -131,6 +139,13 @@ public class EscapeMenuController : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
+        // ✅ Reset score & timer
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.ResetLevelScore();
+            ScoreManager.Instance.ResetLevelTimer();
+        }
+
         Scene current = SceneManager.GetActiveScene();
         SceneManager.LoadScene(current.name);
     }
@@ -142,6 +157,13 @@ public class EscapeMenuController : MonoBehaviour
             Time.timeScale = 1f;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+
+            // ✅ Zero out score & time
+            if (ScoreManager.Instance != null)
+            {
+                ScoreManager.Instance.SetScore(0);
+                ScoreManager.Instance.ResetLevelTimer();
+            }
 
             SceneManager.LoadScene(nextSceneName);
         }

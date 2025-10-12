@@ -179,6 +179,10 @@ public class GhostHealth : MonoBehaviour
         if (GhostKillManager.Instance != null && GhostKillManager.Instance.gameObject != null)
             GhostKillManager.Instance.RegisterKill();
 
+        // ✅ Add 10 points when a ghost dies
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.AddScore(10);
+
         TryDropPotion();
         onGhostDied?.Invoke(this);
         Destroy(gameObject);

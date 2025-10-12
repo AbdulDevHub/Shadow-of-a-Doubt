@@ -45,31 +45,28 @@ public class GhostKillManager : MonoBehaviour
         }
     }
 
+    private bool levelEndingTriggered = false;
     public void RegisterKill()
     {
+        if (levelEndingTriggered) return;
+
         currentKills++;
-        AddScoreForKill();
 
         if (currentKills >= requiredKills)
         {
-            StartCoroutine(HandleLevelComplete());
+            levelEndingTriggered = true;
+            StartCoroutine(WaitForNoGhosts());
         }
     }
 
-    private void AddScoreForKill()
+    private IEnumerator WaitForNoGhosts()
     {
-        // Try to find the ScoreManager in the scene
-        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+        // ✅ Wait until all ghosts are truly gone
+        while (FindObjectsOfType<GhostHealth>().Length > 0)
+            yield return null;
 
-        if (scoreManager != null)
-        {
-            scoreManager.AddScore(10);
-            Debug.Log("Added 10 points! Total Score: " + scoreManager.GetScore());
-        }
-        else
-        {
-            Debug.LogWarning("ScoreManager not found — no score added.");
-        }
+        // ✅ Now safely trigger the fade + dialogue
+        StartCoroutine(HandleLevelComplete());
     }
 
     private IEnumerator HandleLevelComplete()

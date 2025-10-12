@@ -59,10 +59,14 @@ public class PlayerHealth : MonoBehaviour
     private StarterAssets.FirstPersonController playerController;
     private float originalMoveSpeed, originalSprintSpeed, originalRotationSpeed;
 
+    private ScoreManager scoreManager;
+
     private void Start()
     {
         currentHealth = maxHealth;
         UpdateHealthUI();
+
+        scoreManager = FindObjectOfType<ScoreManager>();
 
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
@@ -245,6 +249,11 @@ public class PlayerHealth : MonoBehaviour
         isDead = true;
 
         Debug.Log("Player has died!");
+
+        // ✅ Pause timer here
+        if (scoreManager != null)
+            scoreManager.StopTimer();
+
         ShowGameOverUI();
 
         Time.timeScale = 0f;
@@ -309,6 +318,14 @@ public class PlayerHealth : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
+        // ✅ Subtract 50 points
+        if (scoreManager != null)
+            scoreManager.AddScore(-50);
+
+        // ✅ Resume timer
+        if (scoreManager != null)
+            scoreManager.ResumeTimer();
+
         Debug.Log("Player respawned with full health.");
     }
 
@@ -335,6 +352,13 @@ public class PlayerHealth : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
+        // ✅ Reset timer + score
+        if (scoreManager != null)
+        {
+            scoreManager.ResetLevelTimer();
+            scoreManager.ResetLevelScore();
+        }
+
         Scene current = SceneManager.GetActiveScene();
         SceneManager.LoadScene(current.name);
     }
@@ -350,6 +374,14 @@ public class PlayerHealth : MonoBehaviour
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+
+            // ✅ Reset timer (and optionally score)
+            if (scoreManager != null)
+            {
+                scoreManager.ResetLevelTimer();
+                // scoreManager.ResetLevelScore(); // uncomment if needed
+            }
+
             SceneManager.LoadScene(nextSceneName);
         }
         else

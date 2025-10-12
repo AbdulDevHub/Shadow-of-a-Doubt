@@ -21,6 +21,7 @@ public class WitchHealth : MonoBehaviour
 
     private bool isDead = false;
     private bool canTakeDamage = false;
+    private ScoreManager scoreManager;
 
     [Header("Target Reference")]
     [SerializeField] private Transform player; // assign Player transform in Inspector
@@ -93,6 +94,10 @@ public class WitchHealth : MonoBehaviour
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
 
+        // ✅ Add 10 points whenever the witch takes damage
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.AddScore(10);
+
         UpdateHealthBar();
 
         if (animator != null)
@@ -112,6 +117,18 @@ public class WitchHealth : MonoBehaviour
     {
         isDead = true;
         canTakeDamage = false;
+
+        // ✅ Kill all ghosts in the scene when the witch dies
+        GhostHealth[] allGhosts = FindObjectsOfType<GhostHealth>();
+        foreach (GhostHealth ghost in allGhosts)
+        {
+            if (!ghost.IsDead)
+                ghost.TakeDamage(9999f); // ensures death and triggers explosion prefab
+        }
+
+        scoreManager = FindObjectOfType<ScoreManager>();
+        if (scoreManager != null)
+            scoreManager.StopTimer();
 
         // Stop attacks
         WitchAttackController attackController = GetComponent<WitchAttackController>();

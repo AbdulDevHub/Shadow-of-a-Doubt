@@ -57,8 +57,14 @@ public class DialogueSequence : MonoBehaviour
     [Header("Score Example")]
     public int score = 123; // Replace with your real score variable
 
+    private ScoreManager scoreManager;
+
     void Start()
     {
+        scoreManager = FindObjectOfType<ScoreManager>();
+        if (scoreManager != null)
+            scoreManager.StopTimer();
+
         // Start fully black
         dialogueUI.SetActive(false);
 
@@ -248,12 +254,20 @@ public class DialogueSequence : MonoBehaviour
             // Prevent holding down from skipping multiple lines
             yield return new WaitWhile(SkipPressed);
         }
+
+        // ✅ Resume timer once intro finishes
+        if (scoreManager != null)
+            scoreManager.ResumeTimer();
     }
 
     public IEnumerator PlayOutroDialogue()
     {
         if (outroDialogueLines == null || outroDialogueLines.Count == 0)
             yield break;
+
+        // ✅ Pause timer at start of outro
+        if (scoreManager != null)
+            scoreManager.StopTimer();
 
         // Hide combat UI
         if (combatUI != null)
