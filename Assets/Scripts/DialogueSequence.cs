@@ -134,7 +134,7 @@ public class DialogueSequence : MonoBehaviour
                 Cursor.lockState = CursorLockMode.None;
 
                 if (endPanelController != null)
-                    endPanelController.SetScore(score);
+                    endPanelController.SetScore();
             }
         }
     }

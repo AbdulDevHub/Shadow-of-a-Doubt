@@ -48,10 +48,27 @@ public class GhostKillManager : MonoBehaviour
     public void RegisterKill()
     {
         currentKills++;
+        AddScoreForKill();
 
         if (currentKills >= requiredKills)
         {
             StartCoroutine(HandleLevelComplete());
+        }
+    }
+
+    private void AddScoreForKill()
+    {
+        // Try to find the ScoreManager in the scene
+        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+
+        if (scoreManager != null)
+        {
+            scoreManager.AddScore(10);
+            Debug.Log("Added 10 points! Total Score: " + scoreManager.GetScore());
+        }
+        else
+        {
+            Debug.LogWarning("ScoreManager not found — no score added.");
         }
     }
 
