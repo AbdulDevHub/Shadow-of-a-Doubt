@@ -18,6 +18,13 @@ public class TutorialSceneStandalone : MonoBehaviour
     public Slider manaSlider;
     public TextMeshProUGUI interactText;
 
+    [Header("Frozen Overlay UI")]
+    public GameObject frozenUI;         // Assign in Inspector
+    public float frozenFadeDuration = 0.5f;
+    public float frozenOverlayAlpha = 0.25f;
+    private UnityEngine.UI.RawImage frozenImage;
+    private Coroutine frozenFadeCoroutine;
+
     [Header("Title Sequence")]
     public TMP_Text titleText;  // assign your title text GameObject (with CanvasGroup)
     public float titleFadeDuration = 2f;
@@ -119,6 +126,15 @@ public class TutorialSceneStandalone : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        if (frozenUI != null)
+        {
+            frozenImage = frozenUI.GetComponent<RawImage>();
+            frozenUI.SetActive(true);  // keep active always
+            Color c = frozenImage.color;
+            c.a = 0f;
+            frozenImage.color = c;
+        }
+
         currentMana = maxMana;
         UpdateManaBar();
 
@@ -190,10 +206,17 @@ public class TutorialSceneStandalone : MonoBehaviour
 
     private void GhostAttackPlayer()
     {
-        if (playerHealthComponent == null) return;
+        if (playerHealthComponent == null)
+        {
+            Debug.LogWarning("PlayerHealth missing — recreating");
+            playerHealthComponent = playerRoot.GetComponent<PlayerHealth>();
+        }
 
         // Deal damage to player
         playerHealthComponent.TakeDamage(ghostAttackDamage);
+
+        SetFrozenOverlay(true, resetAlpha: true);
+        StartCoroutine(RemoveFrozenOverlayAfterDelay());
 
         // ✅ Prevent health from dropping below 30% of max health
         float minHealth = playerHealthComponent.maxHealth * 0.3f;
@@ -769,5 +792,52 @@ public class TutorialSceneStandalone : MonoBehaviour
     {
         currentMana = Mathf.Min(currentMana + amount, maxMana);
         UpdateManaBar();
+    }
+
+    private void SetFrozenOverlay(bool show, bool resetAlpha = false)
+    {
+        if (frozenUI == null || frozenImage == null) return;
+
+        if (frozenFadeCoroutine != null)
+            StopCoroutine(frozenFadeCoroutine);
+
+        if (resetAlpha && show)
+        {
+            // Force reset before fade-in
+            Color c = frozenImage.color;
+            c.a = 0f;
+            frozenImage.color = c;
+        }
+
+        frozenFadeCoroutine = StartCoroutine(FadeFrozenUI(show));
+    }
+
+    private IEnumerator FadeFrozenUI(bool fadeIn)
+    {
+        float startAlpha = frozenImage.color.a;
+        float endAlpha = fadeIn ? frozenOverlayAlpha : 0f;
+        float elapsed = 0f;
+
+        while (elapsed < frozenFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(startAlpha, endAlpha, elapsed / frozenFadeDuration);
+            Color c = frozenImage.color;
+            c.a = alpha;
+            frozenImage.color = c;
+            yield return null;
+        }
+
+        Color finalColor = frozenImage.color;
+        finalColor.a = endAlpha;
+        frozenImage.color = finalColor;
+    }
+
+    private Coroutine removeFrozenCoroutine;
+    private IEnumerator RemoveFrozenOverlayAfterDelay()
+    {
+        yield return new WaitForSeconds(slowDuration);
+        SetFrozenOverlay(false);
+        removeFrozenCoroutine = null;
     }
 }
