@@ -96,11 +96,6 @@ public class GhostMoveAndAttack : MonoBehaviour
     // --- Internal ---
     private static readonly string GhostTag = "Ghost";
     
-    private static bool isPlayerSlowed = false;
-    private static float slowTimer = 0f;
-    private static StarterAssets.FirstPersonController slowedController = null;
-    private static float originalMoveSpeed, originalSprintSpeed, originalRotationSpeed;
-    
     private Vector3 smoothedSeparation = Vector3.zero;
     private Vector3 pushVelocity = Vector3.zero;
     private float speedMultiplier = 1f;
@@ -307,48 +302,13 @@ public class GhostMoveAndAttack : MonoBehaviour
 
     private IEnumerator ApplyIceSlowEffect()
     {
-        if (target == null) yield break;
+        if (playerHealth == null) yield break;
 
-        var controller = target.GetComponent<StarterAssets.FirstPersonController>();
-        if (controller == null) yield break;
+        // Apply slow via PlayerHealth, which handles UI
+        playerHealth.ApplySlow(slowMultiplier, slowDuration);
 
-        // --- If already slowed, just refresh timer ---
-        if (isPlayerSlowed)
-        {
-            slowTimer = slowDuration; // reset the remaining time
-            yield break;
-        }
-
-        // --- Apply slow effect ---
-        isPlayerSlowed = true;
-        slowedController = controller;
-
-        originalMoveSpeed = controller.MoveSpeed;
-        originalSprintSpeed = controller.SprintSpeed;
-        originalRotationSpeed = controller.RotationSpeed;
-
-        controller.MoveSpeed = originalMoveSpeed * slowMultiplier;
-        controller.SprintSpeed = originalSprintSpeed * slowMultiplier;
-        controller.RotationSpeed = originalRotationSpeed * slowMultiplier;
-
-        // --- Timer loop (runs once globally) ---
-        slowTimer = slowDuration;
-        while (slowTimer > 0f)
-        {
-            slowTimer -= Time.deltaTime;
-            yield return null;
-        }
-
-        // --- Restore original values safely ---
-        if (slowedController != null)
-        {
-            slowedController.MoveSpeed = originalMoveSpeed;
-            slowedController.SprintSpeed = originalSprintSpeed;
-            slowedController.RotationSpeed = originalRotationSpeed;
-        }
-
-        slowedController = null;
-        isPlayerSlowed = false;
+        // Just wait for the duration to finish before ending coroutine
+        yield return new WaitForSeconds(slowDuration);
     }
 
     private IEnumerator ApplyPoisonDamage()

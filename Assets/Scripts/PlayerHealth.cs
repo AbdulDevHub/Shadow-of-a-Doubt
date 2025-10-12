@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI;  // For Slider, RawImage
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
@@ -15,6 +15,18 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Slider healthBar;
     public Slider HealthBar { get => healthBar; set => healthBar = value; }
 
+    [Header("Status Overlays (UI)")]
+    [SerializeField] private GameObject frozenUI;    // UI for frozen effect
+    [SerializeField] private GameObject damageUI;    // UI for damage flash
+    [SerializeField] private float damageFlashDuration = 0.2f;
+    [SerializeField] private float frozenFadeDuration = 0.5f;
+    [SerializeField] private float frozenOverlayAlpha = 0.25f;
+
+    private RawImage frozenImage;   // Changed to RawImage
+    private Image damageImage;
+    private Coroutine frozenFadeCoroutine;
+    private Coroutine damageFlashCoroutine;
+
     [Header("Game Over UI References")]
     public Image fadePanel;
     public GameObject gameOverUI;
@@ -22,7 +34,6 @@ public class PlayerHealth : MonoBehaviour
     [Header("Fade Settings")]
     public float fadeDuration = 0.5f;
     [Range(0f, 1f)] public float targetAlpha = 0.7f;
-    [Tooltip("Check if DialogueSequence or another script handles the initial fade.")]
     public bool otherScriptHandlesFade = true;
 
     private Coroutine fadeCoroutine;
@@ -42,6 +53,12 @@ public class PlayerHealth : MonoBehaviour
     [Header("Scene Settings")]
     public string nextSceneName;
 
+    // === Slow / Frozen Handling ===
+    private float slowTimer = 0f;
+    private bool isSlowed = false;
+    private StarterAssets.FirstPersonController playerController;
+    private float originalMoveSpeed, originalSprintSpeed, originalRotationSpeed;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -50,14 +67,12 @@ public class PlayerHealth : MonoBehaviour
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
 
-        // Only initialize fade panel if no other script is handling it
         if (!otherScriptHandlesFade && fadePanel != null)
         {
             SetImageAlpha(0f);
             fadePanel.gameObject.SetActive(false);
         }
 
-        // Hook up buttons
         if (respawnButton != null) respawnButton.onClick.AddListener(Respawn);
         if (restartButton != null) restartButton.onClick.AddListener(RestartLevel);
         if (skipButton != null) skipButton.onClick.AddListener(SkipLevel);
@@ -65,6 +80,43 @@ public class PlayerHealth : MonoBehaviour
         if (difficultyButton != null) difficultyButton.onClick.AddListener(ChangeDifficulty);
 
         UpdateDifficultyButtonText();
+
+        // Cache image components if available
+        if (frozenUI != null)
+        {
+            frozenImage = frozenUI.GetComponent<RawImage>(); // Updated
+            frozenUI.SetActive(false);
+        }
+
+        if (damageUI != null)
+        {
+            damageImage = damageUI.GetComponent<Image>();
+            damageUI.SetActive(false);
+        }
+
+        // Cache player controller for slow/frozen effects
+        playerController = GetComponent<StarterAssets.FirstPersonController>();
+        if (playerController != null)
+        {
+            originalMoveSpeed = playerController.MoveSpeed;
+            originalSprintSpeed = playerController.SprintSpeed;
+            originalRotationSpeed = playerController.RotationSpeed;
+        }
+    }
+
+    private void Update()
+    {
+        // Handle slow timer
+        if (isSlowed)
+        {
+            slowTimer -= Time.deltaTime;
+            if (slowTimer <= 0f)
+            {
+                ResetPlayerSpeed();
+                SetFrozen(false);
+                isSlowed = false;
+            }
+        }
     }
 
     public void TakeDamage(float amount)
@@ -74,8 +126,103 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Max(0, currentHealth - amount);
         UpdateHealthUI();
 
+        if (damageUI != null)
+        {
+            if (damageFlashCoroutine != null)
+                StopCoroutine(damageFlashCoroutine);
+            damageFlashCoroutine = StartCoroutine(FlashDamageUI());
+        }
+
         if (currentHealth <= 0)
             Die();
+    }
+
+    private IEnumerator FlashDamageUI()
+    {
+        damageUI.SetActive(true);
+        if (damageImage == null)
+            damageImage = damageUI.GetComponent<Image>();
+
+        Color startColor = damageImage.color;
+
+        float elapsed = 0f;
+        while (elapsed < damageFlashDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(startColor.a, 0f, elapsed / damageFlashDuration);
+            damageImage.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            yield return null;
+        }
+
+        damageUI.SetActive(false);
+        damageImage.color = startColor;
+    }
+
+    // === Slow / Frozen Methods ===
+    public void ApplySlow(float multiplier, float duration)
+    {
+        if (playerController == null) return;
+
+        slowTimer = duration;
+
+        if (!isSlowed)
+        {
+            isSlowed = true;
+
+            originalMoveSpeed = playerController.MoveSpeed;
+            originalSprintSpeed = playerController.SprintSpeed;
+            originalRotationSpeed = playerController.RotationSpeed;
+
+            playerController.MoveSpeed *= multiplier;
+            playerController.SprintSpeed *= multiplier;
+            playerController.RotationSpeed *= multiplier;
+
+            SetFrozen(true);
+        }
+    }
+
+    private void ResetPlayerSpeed()
+    {
+        if (playerController == null) return;
+
+        playerController.MoveSpeed = originalMoveSpeed;
+        playerController.SprintSpeed = originalSprintSpeed;
+        playerController.RotationSpeed = originalRotationSpeed;
+    }
+
+    public void SetFrozen(bool isFrozen)
+    {
+        if (frozenUI == null || frozenImage == null)
+            return;
+
+        if (frozenFadeCoroutine != null)
+            StopCoroutine(frozenFadeCoroutine);
+        frozenFadeCoroutine = StartCoroutine(FadeFrozenUI(isFrozen));
+    }
+
+    private IEnumerator FadeFrozenUI(bool fadeIn)
+    {
+        frozenUI.SetActive(true);
+        float startAlpha = frozenImage.color.a;
+        float endAlpha = fadeIn ? frozenOverlayAlpha : 0f;
+        float elapsed = 0f;
+
+        while (elapsed < frozenFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(startAlpha, endAlpha, elapsed / frozenFadeDuration);
+            Color c = frozenImage.color;
+            c.a = alpha;
+            frozenImage.color = c;
+            yield return null;
+        }
+
+        Color finalColor = frozenImage.color;
+        finalColor.a = endAlpha;
+        frozenImage.color = finalColor;
+
+        if (!fadeIn)
+            frozenUI.SetActive(false);
     }
 
     public void Heal(float amount)
@@ -122,19 +269,6 @@ public class PlayerHealth : MonoBehaviour
             gameOverUI.SetActive(true);
     }
 
-    private void HideGameOverUI()
-    {
-        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-        fadeCoroutine = StartCoroutine(FadeOutAndDisable());
-    }
-
-    private IEnumerator FadeOutAndDisable()
-    {
-        yield return StartCoroutine(FadeImage(fadePanel, fadePanel.color.a, 0f));
-        fadePanel.gameObject.SetActive(false);
-        gameOverUI.SetActive(false);
-    }
-
     private IEnumerator FadeImage(Image img, float start, float end)
     {
         float time = 0f;
@@ -157,7 +291,6 @@ public class PlayerHealth : MonoBehaviour
     }
 
     // === BUTTON FUNCTIONS ===
-
     public void Respawn()
     {
         if (!isDead) return;
@@ -177,6 +310,19 @@ public class PlayerHealth : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         Debug.Log("Player respawned with full health.");
+    }
+
+    private void HideGameOverUI()
+    {
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        StartCoroutine(FadeOutAndDisable());
+    }
+
+    private IEnumerator FadeOutAndDisable()
+    {
+        yield return StartCoroutine(FadeImage(fadePanel, fadePanel.color.a, 0f));
+        fadePanel.gameObject.SetActive(false);
+        gameOverUI.SetActive(false);
     }
 
     public void RestartLevel()
