@@ -18,6 +18,17 @@ public class TutorialSceneStandalone : MonoBehaviour
     public Slider manaSlider;
     public TextMeshProUGUI interactText;
 
+    [Header("Audio")]
+    public AudioClip shootSound;
+    public AudioClip drinkPotionSound;
+    public AudioClip ghostDeathSound;
+    public AudioClip iceAttackSound;
+    private AudioSource audioSource;
+
+    [Header("Dialogue Sound")]
+    [SerializeField] private AudioClip dialogueLoopSound;
+    [SerializeField] private float dialogueSoundFadeOut = 0.5f; // seconds
+
     [Header("Frozen Overlay UI")]
     public GameObject frozenUI;         // Assign in Inspector
     public float frozenFadeDuration = 0.5f;
@@ -135,6 +146,9 @@ public class TutorialSceneStandalone : MonoBehaviour
             frozenImage.color = c;
         }
 
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+
         currentMana = maxMana;
         UpdateManaBar();
 
@@ -206,6 +220,10 @@ public class TutorialSceneStandalone : MonoBehaviour
 
     private void GhostAttackPlayer()
     {
+        // ✅ Play ice attack sound
+        if (iceAttackSound != null && audioSource != null)
+            audioSource.PlayOneShot(iceAttackSound);
+
         if (playerHealthComponent == null)
         {
             Debug.LogWarning("PlayerHealth missing — recreating");
@@ -371,6 +389,12 @@ public class TutorialSceneStandalone : MonoBehaviour
     private void Shoot()
     {
         if (playerCamera == null || spellPrefab == null) return;
+
+        // ✅ Play shooting sound
+        if (shootSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
 
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.Raycast(ray, out RaycastHit hit, shootingRange, hitMask, rayQueryTrigger))
@@ -552,6 +576,11 @@ public class TutorialSceneStandalone : MonoBehaviour
 
     private void KillGhost()
     {
+        if (ghostDeathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(ghostDeathSound);
+        }
+
         if (ghostSmokeFX != null && spawnedGhost != null)
         {
             GameObject fx = Instantiate(
@@ -650,43 +679,53 @@ public class TutorialSceneStandalone : MonoBehaviour
 
         if (dialogueUI != null) dialogueUI.SetActive(true);
         if (characterNameText != null) characterNameText.text = character;
-        
+
+        // --- Dialogue looping sound ---
+        AudioSource dialogueAudio = null;
+        if (dialogueLoopSound != null)
+        {
+            GameObject audioObj = new GameObject("DialogueLoopSound");
+            audioObj.transform.SetParent(transform); // optional: keep hierarchy clean
+            audioObj.transform.localPosition = Vector3.zero;
+
+            dialogueAudio = audioObj.AddComponent<AudioSource>();
+            dialogueAudio.clip = dialogueLoopSound;
+            dialogueAudio.loop = true;
+            dialogueAudio.spatialBlend = 0f; // 2D sound
+            dialogueAudio.Play();
+        }
+
         if (dialogueText != null)
         {
             dialogueText.text = "";
             int charIndex = 0;
 
-            // Typing effect with skip functionality
             while (charIndex < text.Length)
             {
-                // Check if player wants to skip typing
                 if (SkipPressed())
                 {
-                    // Show full text immediately
                     dialogueText.text = text;
-                    
-                    // Wait until input is released before continuing
-                    yield return new WaitWhile(() => SkipPressed());
+                    yield return new WaitWhile(SkipPressed);
                     break;
                 }
 
-                // Add next character
                 dialogueText.text += text[charIndex];
                 charIndex++;
-                
-                yield return new WaitForSeconds(0.03f);
+                yield return new WaitForSeconds(0.03f); // typing speed
             }
         }
 
-        // Wait for next click/press to continue to next dialogue
-        yield return new WaitUntil(() => SkipPressed());
-        
-        // Prevent holding down from skipping multiple dialogues
-        yield return new WaitWhile(() => SkipPressed());
-        
+        yield return new WaitUntil(SkipPressed);
+        yield return new WaitWhile(SkipPressed);
+
         if (dialogueUI != null) dialogueUI.SetActive(false);
         allowShooting = prevShoot;
+
+        // Fade out the dialogue looping sound
+        if (dialogueAudio != null)
+            StartCoroutine(FadeOutAndDestroy(dialogueAudio, dialogueSoundFadeOut));
     }
+
 
     // Add this helper method to TutorialSceneStandalone class:
     private bool SkipPressed()
@@ -752,6 +791,13 @@ public class TutorialSceneStandalone : MonoBehaviour
                     Destroy(spawnedPotion);
                     spawnedPotion = null;
                     drank = true;
+
+                    // ✅ Play drink sound
+                    if (drinkPotionSound != null && audioSource != null)
+                    {
+                        audioSource.PlayOneShot(drinkPotionSound);
+                    }
+
                     if (interactText != null) interactText.gameObject.SetActive(false);
                 }
             }
@@ -839,5 +885,23 @@ public class TutorialSceneStandalone : MonoBehaviour
         yield return new WaitForSeconds(slowDuration);
         SetFrozenOverlay(false);
         removeFrozenCoroutine = null;
+    }
+
+    private IEnumerator FadeOutAndDestroy(AudioSource source, float duration)
+    {
+        if (source == null) yield break;
+
+        float startVolume = source.volume;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+
+        source.Stop();
+        Destroy(source.gameObject);
     }
 }

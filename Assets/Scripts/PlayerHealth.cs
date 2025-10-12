@@ -50,6 +50,11 @@ public class PlayerHealth : MonoBehaviour
     public Button quitButton;
     public Button difficultyButton;
 
+    [Header("Button Sounds")]
+    [SerializeField] private AudioClip healSound;     // For respawn button
+    [SerializeField] private AudioClip clickSound;    // For other buttons
+    [SerializeField] private AudioClip toggleSound;   // For difficulty button
+
     [Header("Scene Settings")]
     public string nextSceneName;
 
@@ -302,6 +307,10 @@ public class PlayerHealth : MonoBehaviour
     // === BUTTON FUNCTIONS ===
     public void Respawn()
     {
+        // Play heal sound
+        if (healSound != null)
+            PlayUISound(healSound);
+        
         if (!isDead) return;
 
         isDead = false;
@@ -344,6 +353,10 @@ public class PlayerHealth : MonoBehaviour
 
     public void RestartLevel()
     {
+        // Play click sound
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         Time.timeScale = 1f;
 
         if (playerInput != null)
@@ -365,6 +378,10 @@ public class PlayerHealth : MonoBehaviour
 
     public void SkipLevel()
     {
+        // Play click sound
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         if (!string.IsNullOrEmpty(nextSceneName))
         {
             Time.timeScale = 1f;
@@ -392,6 +409,10 @@ public class PlayerHealth : MonoBehaviour
 
     public void QuitGame()
     {
+        // Play click sound
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         Time.timeScale = 1f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -405,6 +426,10 @@ public class PlayerHealth : MonoBehaviour
 
     public void ChangeDifficulty()
     {
+        // Play toggle sound
+        if (toggleSound != null)
+            PlayUISound(toggleSound);
+
         DifficultyManager.Instance.CycleDifficulty();
         UpdateDifficultyButtonText();
         Debug.Log("Difficulty changed to: " + DifficultyManager.Instance.CurrentDifficulty);
@@ -418,5 +443,18 @@ public class PlayerHealth : MonoBehaviour
             if (btnText != null)
                 btnText.text = "Difficulty: " + DifficultyManager.Instance.CurrentDifficulty;
         }
+    }
+
+    private void PlayUISound(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+
+        GameObject tempGO = new GameObject("TempAudio");
+        AudioSource aSource = tempGO.AddComponent<AudioSource>();
+        aSource.clip = clip;
+        aSource.volume = volume;
+        aSource.spatialBlend = 0f; // 0 = 2D
+        aSource.Play();
+        Destroy(tempGO, clip.length);
     }
 }

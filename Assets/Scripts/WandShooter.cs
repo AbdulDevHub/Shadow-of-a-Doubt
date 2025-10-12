@@ -18,6 +18,10 @@ public class WandShooter : MonoBehaviour
     [SerializeField] private float burstLifetime = 2f;
     private int currentIndex = 0;
 
+    [Header("Audio")]
+    public AudioSource audioSource;               // Drag an AudioSource here
+    public AudioClip[] spellSounds = new AudioClip[3]; // 0 = Fire, 1 = Water, 2 = Wind
+
     [Header("Mana")]
     public Slider manaBar;
     public float maxMana = 10f;
@@ -209,6 +213,18 @@ public class WandShooter : MonoBehaviour
 
     private void Shoot()
     {
+        // ✅ Play sound for spell type if assigned
+        if (audioSource != null && spellSounds.Length > currentIndex && spellSounds[currentIndex] != null)
+        {
+            float volume = 1f; // default full volume
+
+            // Reduce water spell volume by 50%
+            if (currentIndex == 1) // Water spell
+                volume = 0.5f;
+
+            audioSource.PlayOneShot(spellSounds[currentIndex], volume);
+        }
+
         if (spellPrefabs.Length == 0 || spellPrefabs[currentIndex] == null)
             return;
 

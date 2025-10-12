@@ -14,6 +14,9 @@ public class WitchHealth : MonoBehaviour
     private Image healthFill;
     private Animator animator;
 
+    [Header("🔊 Sound Effects")]
+    [SerializeField] private AudioClip damageSound;
+
     [Header("UI References")]
     public Image fadePanel;      
     public Image ghostIcon;      
@@ -102,6 +105,10 @@ public class WitchHealth : MonoBehaviour
 
         if (animator != null)
             animator.SetTrigger("Damage");
+
+        // ✅ Play damage sound at witch position
+        if (damageSound != null)
+            AudioSource.PlayClipAtPoint(damageSound, transform.position);
 
         if (currentHealth <= 0)
             StartCoroutine(DeathSequence());

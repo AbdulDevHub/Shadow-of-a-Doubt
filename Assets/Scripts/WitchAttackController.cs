@@ -12,6 +12,13 @@ public class WitchAttackController : MonoBehaviour
     private WitchShield shield;
     private Animator animator;
 
+    [Header("🔊 Attack Sounds")]
+    [SerializeField] private AudioClip teleportSound;
+    [SerializeField] private AudioClip crystalSound;
+    [SerializeField] private AudioClip ghostSummonSound;
+    [SerializeField] private AudioClip shieldSound;
+    [SerializeField] private AudioClip circleBeepSound;
+
     [Header("Ghost Spawning")]
     public GhostSpawnerMaster ghostSpawner;        // Assign in Inspector
     public GameObject ghostSummonEffectPrefab;     // Visual cue for ghost summon
@@ -147,6 +154,9 @@ public class WitchAttackController : MonoBehaviour
                     {
                         animator.SetTrigger("Attack"); // 🔹 plays attack animation
                         shield.ActivateShield();
+
+                        if (shieldSound != null)
+                            AudioSource.PlayClipAtPoint(shieldSound, transform.position);
                     }
                     break;
 
@@ -204,6 +214,9 @@ public class WitchAttackController : MonoBehaviour
 
             effect.transform.localScale = Vector3.one * ghostSummonEffectPrefab.transform.localScale.x;
 
+            if (ghostSummonSound != null)
+                AudioSource.PlayClipAtPoint(ghostSummonSound, transform.position);
+            
             float effectDuration = 2f;
             Destroy(effect, effectDuration);
             yield return new WaitForSeconds(effectDuration);
@@ -273,6 +286,9 @@ public class WitchAttackController : MonoBehaviour
         {
             GameObject crystal = Instantiate(crystalEffectPrefab, circle.transform.position, Quaternion.identity);
             crystal.transform.localScale = circle.transform.localScale;
+
+            if (crystalSound != null)
+                AudioSource.PlayClipAtPoint(crystalSound, circle.transform.position);
         }
     }
 
@@ -285,6 +301,11 @@ public class WitchAttackController : MonoBehaviour
         while (circle.activeSelf)
         {
             rend.enabled = !rend.enabled;
+
+            // Play beep only when turning on the circle
+            if (rend.enabled && circleBeepSound != null)
+                AudioSource.PlayClipAtPoint(circleBeepSound, circle.transform.position);
+
             yield return new WaitForSeconds(flashSpeed);
         }
 
@@ -308,6 +329,9 @@ public class WitchAttackController : MonoBehaviour
             GameObject effect2 = Instantiate(teleportEffectPrefab, toPos, Quaternion.identity);
             Destroy(effect1, teleportEffectDuration);
             Destroy(effect2, teleportEffectDuration);
+
+            if (teleportSound != null)
+                AudioSource.PlayClipAtPoint(teleportSound, fromPos);
         }
 
         yield return new WaitForSeconds(teleportEffectDuration);

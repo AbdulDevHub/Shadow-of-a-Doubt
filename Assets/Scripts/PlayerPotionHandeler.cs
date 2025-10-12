@@ -26,6 +26,11 @@ public class PlayerPotionHandler : MonoBehaviour
     [SerializeField] private GameObject healthLockImage;
     [SerializeField] private GameObject manaLockImage;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip smallPotionSound;   // For 30% potions
+    [SerializeField] private AudioClip bigPotionSound;     // For ultimate potions
+
     private GameObject lookedAtPotion;
 
     private void Start()
@@ -125,14 +130,39 @@ public class PlayerPotionHandler : MonoBehaviour
 
     private void DrinkPotion(GameObject potion)
     {
+        bool isSmallPotion = false;
+
         if (potion.CompareTag("HealthPotion30"))
+        {
             ApplyHealthPotion(0.3f);
+            isSmallPotion = true;
+        }
         else if (potion.CompareTag("UltimateHealthPotion"))
+        {
             StartCoroutine(ApplyUltimateHealthPotion());
+        }
         else if (potion.CompareTag("ManaPotion30"))
+        {
             ApplyManaPotion(0.3f);
+            isSmallPotion = true;
+        }
         else if (potion.CompareTag("UltimateManaPotion"))
+        {
             StartCoroutine(ApplyUltimateManaPotion());
+        }
+
+        // ✅ Play the appropriate sound
+        if (audioSource != null)
+        {
+            if (isSmallPotion && smallPotionSound != null)
+            {
+                audioSource.PlayOneShot(smallPotionSound);
+            }
+            else if (!isSmallPotion && bigPotionSound != null)
+            {
+                audioSource.PlayOneShot(bigPotionSound);
+            }
+        }
 
         Destroy(potion);
 

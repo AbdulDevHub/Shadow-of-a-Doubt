@@ -11,6 +11,11 @@ public class GhostMoveAndAttack : MonoBehaviour
     [Tooltip("Select what kind of ghost this is (Ice, Fire, or Poison). Determines attack behavior.")]
     public GhostKind ghostKind = GhostKind.Ice;
 
+    [Header("🔊 Attack Sounds")]
+    [SerializeField] private AudioClip fireAttackSound;
+    [SerializeField] private AudioClip iceAttackSound;
+    [SerializeField] private AudioClip poisonAttackSound;
+
     [Tooltip("Reference to this ghost's health component. Auto-assigned on Awake.")]
     public GhostHealth ghostHealth;
 
@@ -257,27 +262,35 @@ public class GhostMoveAndAttack : MonoBehaviour
 
     private void AttackPlayerAtPlayer()
     {
+        // Apply damage
         playerHealth.TakeDamage(attackDamage);
 
         // --- Fire Ghost Knockback ---
         if (ghostKind == GhostKind.Fire && target != null)
-        {
             StartCoroutine(ApplyFireKnockback());
-        }
 
-        // --- Ice Ghost Special Slow Effect --- //
+        // --- Ice Ghost Slow Effect ---
         if (ghostKind == GhostKind.Ice && target != null)
-        {
             StartCoroutine(ApplyIceSlowEffect());
-        }
 
-        // --- Spawn visual attack effect --- //
+        // --- Spawn visual attack effect ---
         if (attackEffectPrefab != null && target != null)
         {
             GameObject effect = Instantiate(attackEffectPrefab, target.position, Quaternion.identity);
             ScaleEffect(effect, attackEffectScale);
             Destroy(effect, 2f);
         }
+
+        // --- Play attack sound ---
+        AudioClip clip = null;
+        switch (ghostKind)
+        {
+            case GhostKind.Fire: clip = fireAttackSound; break;
+            case GhostKind.Ice: clip = iceAttackSound; break;
+        }
+
+        if (clip != null)
+            AudioSource.PlayClipAtPoint(clip, transform.position);
     }
 
     private IEnumerator ApplyFireKnockback()
@@ -321,7 +334,20 @@ public class GhostMoveAndAttack : MonoBehaviour
             ScaleEffect(poisonEffect, attackEffectScale);
         }
 
-        // Continue as long as ghost and player are alive and in range
+        AudioSource poisonSoundSource = null;
+        if (poisonAttackSound != null)
+        {
+            // Create a temporary AudioSource for looping
+            GameObject soundObj = new GameObject("PoisonSound");
+            soundObj.transform.position = transform.position;
+            poisonSoundSource = soundObj.AddComponent<AudioSource>();
+            poisonSoundSource.clip = poisonAttackSound;
+            poisonSoundSource.loop = true;
+            poisonSoundSource.spatialBlend = 1f; // optional 3D sound
+            poisonSoundSource.Play();
+        }
+
+        // Attack loop
         while (true)
         {
             if (playerHealth == null || ghostHealth == null || ghostHealth.IsDead)
@@ -333,15 +359,15 @@ public class GhostMoveAndAttack : MonoBehaviour
             if (distance > stopDistance)
                 break;
 
-            // Apply poison damage instantly each interval while in range
+            // Apply poison damage
             playerHealth.TakeDamage(poisonDamagePerSecond);
 
-            // Wait a short time before next tick, but exit instantly if pushed away
+            // Wait for next tick
             float elapsed = 0f;
             while (elapsed < poisonCheckInterval)
             {
                 if (Vector3.Distance(transform.position, target.position) > stopDistance)
-                    goto ExitPoison; // break out immediately if ghost is pushed away
+                    goto ExitPoison; // stop instantly
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -351,6 +377,12 @@ public class GhostMoveAndAttack : MonoBehaviour
     ExitPoison:
         if (poisonEffect != null)
             Destroy(poisonEffect);
+
+        if (poisonSoundSource != null)
+        {
+            poisonSoundSource.Stop();
+            Destroy(poisonSoundSource.gameObject);
+        }
 
         poisonCoroutine = null;
     }

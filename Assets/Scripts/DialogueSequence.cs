@@ -27,10 +27,19 @@ public class DialogueSequence : MonoBehaviour
     public Image fadePanel;
     public float fadeDuration = 1f;
 
+    [Header("Dialogue Sound")]
+    [SerializeField] private AudioClip dialogueLoopSound;
+    [SerializeField] private float dialogueSoundFadeOut = 0.5f; // seconds
+
     [Header("Title Sequence")]
     public TMP_Text titleText;           // Assign your TMP_Text object in the inspector
     public float titleFadeDuration = 2f; // Fade in/out duration
     public float titleDisplayDuration = 2f; // How long to stay visible
+
+    [Header("Title Sound (Optional)")]
+    public bool playSoundAfterTitleFadeIn = false;
+    [SerializeField] private AudioClip titleSound;
+    [SerializeField] private float titleSoundVolume = 1f;
 
     [Header("Into Dialogue (Before Level Starts)")]
     public List<DialogueLine> dialogueLines = new List<DialogueLine>();
@@ -188,6 +197,26 @@ public class DialogueSequence : MonoBehaviour
         textColor.a = 1f;
         titleText.color = textColor;
 
+                // ✅ Play sound right after fade-in, if toggled on
+        if (playSoundAfterTitleFadeIn && titleSound != null)
+        {
+            GameObject tempAudio = new GameObject("TitleSoundTemp");
+            AudioSource source = tempAudio.AddComponent<AudioSource>();
+
+            source.clip = titleSound;
+            source.volume = titleSoundVolume; // You can set this to 1f in Inspector
+            source.spatialBlend = 0f;         // 2D sound (not affected by distance)
+            source.priority = 0;              // Highest priority so nothing overrides it
+            source.playOnAwake = false;
+            source.loop = false;
+
+            // Optional → assign a dedicated Mixer Group if you want it even louder
+            // source.outputAudioMixerGroup = yourMixerGroup;
+
+            source.Play();
+            Destroy(tempAudio, titleSound.length);
+        }
+
         // --- Hold for display ---
         yield return new WaitForSeconds(titleDisplayDuration);
 
@@ -214,6 +243,20 @@ public class DialogueSequence : MonoBehaviour
 
     IEnumerator RunDialogue()
     {
+        AudioSource dialogueAudio = null;
+
+        // Spawn looping AudioSource if sound assigned
+        if (dialogueLoopSound != null)
+        {
+            GameObject audioObj = new GameObject("DialogueLoopSound");
+            audioObj.transform.position = transform.position;
+            dialogueAudio = audioObj.AddComponent<AudioSource>();
+            dialogueAudio.clip = dialogueLoopSound;
+            dialogueAudio.loop = true;
+            dialogueAudio.spatialBlend = 0f; // 2D sound
+            dialogueAudio.Play();
+        }
+
         foreach (var line in dialogueLines)
         {
             characterIconImage.sprite = line.characterIcon;
@@ -226,36 +269,31 @@ public class DialogueSequence : MonoBehaviour
 
                 while (charIndex < line.dialogueText.Length)
                 {
-                    // Check if player wants to skip typing
                     if (SkipPressed())
                     {
                         dialogueText.text = line.dialogueText;
-
-                        // Wait until input released before continuing
                         yield return new WaitWhile(SkipPressed);
                         break;
                     }
 
                     dialogueText.text += line.dialogueText[charIndex];
                     charIndex++;
-
                     yield return new WaitForSeconds(typingSpeed);
                 }
             }
             else
             {
-                // Instant text
                 dialogueText.text = line.dialogueText;
             }
 
-            // Wait for next click/press to continue
             yield return new WaitUntil(SkipPressed);
-
-            // Prevent holding down from skipping multiple lines
             yield return new WaitWhile(SkipPressed);
         }
 
-        // ✅ Resume timer once intro finishes
+        // Fade out and destroy the looping audio
+        if (dialogueAudio != null)
+            StartCoroutine(FadeOutAndDestroy(dialogueAudio, dialogueSoundFadeOut));
+
         if (scoreManager != null)
             scoreManager.ResumeTimer();
     }
@@ -321,5 +359,23 @@ public class DialogueSequence : MonoBehaviour
             ((Keyboard.current.enterKey != null && Keyboard.current.enterKey.isPressed) ||
                 (Keyboard.current.numpadEnterKey != null && Keyboard.current.numpadEnterKey.isPressed))) ||
             (Mouse.current != null && Mouse.current.leftButton.isPressed);
+    }
+
+    private IEnumerator FadeOutAndDestroy(AudioSource audioSource, float duration)
+    {
+        if (audioSource == null) yield break;
+
+        float startVolume = audioSource.volume;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+
+        audioSource.Stop();
+        Destroy(audioSource.gameObject);
     }
 }

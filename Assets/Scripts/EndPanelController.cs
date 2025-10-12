@@ -14,6 +14,9 @@ public class EndPanelController : MonoBehaviour
     public TMP_Text level2TimeText;
     public TMP_Text bossTimeText;
 
+    [Header("Button Sounds")]
+    [SerializeField] private AudioClip clickSound;  // Assign in inspector
+
     [Header("Totals (assign in inspector)")]
     public TMP_Text totalScoreText;
     public TMP_Text totalTimeText;
@@ -71,21 +74,25 @@ public class EndPanelController : MonoBehaviour
 
     void QuitGame()
     {
+        if (clickSound != null)
+            AudioSource.PlayClipAtPoint(clickSound, Vector3.zero);
+
         Debug.Log("Quit Game pressed!");
         Application.Quit();
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-#endif
+    #endif
     }
 
     void ReturnToMainMenu()
     {
+        if (clickSound != null)
+            AudioSource.PlayClipAtPoint(clickSound, Vector3.zero);
+
         // Reset ScoreManager if needed
         if (ScoreManager.Instance != null)
             ScoreManager.Instance.ResetAll(); // Make this method in your manager if it doesn't exist
-
-        // Reset other managers here...
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Main Menu");
     }

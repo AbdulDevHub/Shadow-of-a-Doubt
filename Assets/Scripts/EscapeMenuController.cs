@@ -11,6 +11,10 @@ public class EscapeMenuController : MonoBehaviour
     public Image fadePanel;           
     public GameObject escapeMenuUI;   
 
+    [Header("Button Sounds")]
+    [SerializeField] private AudioClip clickSound;   // Resume, Restart, Skip, Quit
+    [SerializeField] private AudioClip toggleSound;  // Difficulty button
+
     [Header("Settings")]
     public float fadeDuration = 0.5f;
     [Range(0f, 1f)] public float targetAlpha = 0.7f;
@@ -127,19 +131,23 @@ public class EscapeMenuController : MonoBehaviour
     }
 
     // === BUTTON FUNCTIONS ===
-
     public void ResumeGame()
     {
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         CloseMenu();
     }
 
     public void RestartLevel()
     {
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         Time.timeScale = 1f; 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        // ✅ Reset score & timer
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.ResetLevelScore();
@@ -152,13 +160,15 @@ public class EscapeMenuController : MonoBehaviour
 
     public void SkipLevel()
     {
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         if (!string.IsNullOrEmpty(nextSceneName))
         {
             Time.timeScale = 1f;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
 
-            // ✅ Zero out score & time
             if (ScoreManager.Instance != null)
             {
                 ScoreManager.Instance.SetScore(0);
@@ -175,19 +185,25 @@ public class EscapeMenuController : MonoBehaviour
 
     public void QuitGame()
     {
+        if (clickSound != null)
+            PlayUISound(clickSound);
+
         Time.timeScale = 1f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-#else
+    #else
         Application.Quit();
-#endif
+    #endif
     }
 
     public void ChangeDifficulty()
     {
+        if (toggleSound != null)
+            PlayUISound(toggleSound);
+
         DifficultyManager.Instance.CycleDifficulty();
         UpdateDifficultyButtonText();
         Debug.Log("Difficulty changed to: " + DifficultyManager.Instance.CurrentDifficulty);
@@ -201,5 +217,18 @@ public class EscapeMenuController : MonoBehaviour
             if (btnText != null)
                 btnText.text = "Difficulty: " + DifficultyManager.Instance.CurrentDifficulty;
         }
+    }
+
+    private void PlayUISound(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+
+        GameObject tempGO = new GameObject("TempAudio");
+        AudioSource aSource = tempGO.AddComponent<AudioSource>();
+        aSource.clip = clip;
+        aSource.volume = volume;
+        aSource.spatialBlend = 0f; // 0 = 2D
+        aSource.Play();
+        Destroy(tempGO, clip.length);
     }
 }

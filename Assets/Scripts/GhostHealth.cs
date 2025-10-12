@@ -32,6 +32,9 @@ public class GhostHealth : MonoBehaviour
     [Tooltip("Which spell type (Fire, Water, Wind) deals damage to this ghost.")]
     public ElementType weaknessTo;
 
+    [Header("🔊 Audio")]
+    [SerializeField] private AudioClip deathSound;
+
     [Header("💨 Linked Components")]
     [Tooltip("The ghost’s movement and attack controller. Auto-assigned on Awake.")]
     private GhostMoveAndAttack movement;
@@ -171,9 +174,11 @@ public class GhostHealth : MonoBehaviour
     private void Die()
     {
         if (defaultSmokeEffect != null)
-        {
             Instantiate(defaultSmokeEffect, transform.position, defaultSmokeEffect.transform.rotation);
-        }
+
+        // ✅ Play death sound at the ghost's position
+        if (deathSound != null)
+            AudioSource.PlayClipAtPoint(deathSound, transform.position);
 
         // Only report kills if a manager actually exists in this scene
         if (GhostKillManager.Instance != null && GhostKillManager.Instance.gameObject != null)
