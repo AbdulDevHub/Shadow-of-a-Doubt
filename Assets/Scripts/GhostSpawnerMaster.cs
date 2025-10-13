@@ -70,6 +70,16 @@ public class GhostSpawnerMaster : MonoBehaviour
 
     public IEnumerator SpawnWave(Wave wave)
     {
+        // MESSAGE TO PROF: Prof might start game in unity editor from a scene other than main menu.
+        // In that case, before, ghosts wouldn’t spawn because DifficultyManager wouldn’t be initialized,
+        // so this fallback was added so that ghosts will spawn regardless -> for your testing convenience.
+        if (DifficultyManager.Instance == null)
+        {
+            GameObject dmObject = new GameObject("~DifficultyManager (Auto)");
+            dmObject.AddComponent<DifficultyManager>();
+            Debug.LogWarning("No DifficultyManager found. Auto-created one for editor/testing scenes.");
+        }
+
         var (minInterval, maxInterval) = DifficultyManager.Instance.GetSpawnIntervals();
 
         foreach (var ghostEntry in wave.ghostsInWave)
